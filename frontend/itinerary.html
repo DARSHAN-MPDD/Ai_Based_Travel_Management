@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Itineraries - TravelMind AI</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/planner.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-primary" href="index.html">
+        <i class="fas fa-compass me-2"></i>TravelMind AI
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="destinations.html">Destinations</a></li>
+          <li class="nav-item"><a class="nav-link" href="packages.html">Packages</a></li>
+          <li class="nav-item"><a class="nav-link" href="ai-planner.html">AI Planner</a></li>
+          <li class="nav-item"><a class="nav-link" href="my-bookings.html">My Bookings</a></li>
+          <li class="nav-item"><a class="nav-link active" href="itinerary.html">My Itineraries</a></li>
+          <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+        </ul>
+        <div class="dropdown" id="userMenu" style="display:none;">
+          <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="fas fa-user me-1"></i><span id="userName"></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user me-2"></i>Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="pt-5" style="padding-top: 80px;">
+    <div class="container py-4">
+      <div class="row mb-4">
+        <div class="col">
+          <h1 class="fw-bold">My Itineraries</h1>
+          <p class="text-muted">View and manage your saved travel plans</p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12">
+          <div class="card planner-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0"><i class="fas fa-list me-2 text-primary"></i>Saved Itineraries</h5>
+              <a href="ai-planner.html" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>Create New
+              </a>
+            </div>
+            <div class="card-body" id="itinerariesContainer">
+              <div class="text-center py-5" id="loadingState">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Loading your itineraries...</p>
+              </div>
+              
+              <div id="emptyState" class="text-center py-5" style="display: none;">
+                <i class="fas fa-route fa-3x text-muted mb-3"></i>
+                <h5>No Itineraries Yet</h5>
+                <p class="text-muted">Create your first AI-powered travel plan</p>
+                <a href="ai-planner.html" class="btn btn-primary mt-2">
+                  <i class="fas fa-magic me-1"></i>Plan Your First Trip
+                </a>
+              </div>
+
+              <div id="itinerariesList" style="display: none;">
+                <!-- Populated by JS -->
+              </div>
+
+              <nav id="paginationNav" style="display: none;" aria-label="Itineraries pagination">
+                <ul class="pagination justify-content-center" id="paginationList"></ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="itineraryDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Itinerary Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="modalBody">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/itinerary.js"></script>
+</body>
+</html>

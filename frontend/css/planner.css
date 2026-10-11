@@ -1,0 +1,423 @@
+.planner-card {
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.planner-card .card-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 1px solid #dee2e6;
+  padding: 1rem 1.5rem;
+}
+
+.planner-card .card-body {
+  padding: 1.5rem;
+}
+
+.interests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.interest-chip {
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.interest-chip:hover {
+  border-color: #0d6efd;
+}
+
+.interest-chip input[type="checkbox"] {
+  display: none;
+}
+
+.interest-chip label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0.75rem;
+  cursor: pointer;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.interest-chip label i {
+  font-size: 1.5rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.interest-chip input[type="checkbox"]:checked + label {
+  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+  color: white;
+}
+
+.interest-chip input[type="checkbox"]:checked + label i {
+  color: white;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0d6efd;
+}
+
+.summary-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.step-content h6 {
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.budget-category-card {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.75rem;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.budget-category-card:hover {
+  border-color: #0d6efd;
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.1);
+}
+
+.budget-category-card i {
+  font-size: 1.25rem;
+  color: #0d6efd;
+  margin-bottom: 0.5rem;
+}
+
+.budget-category-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.budget-category-value {
+  font-weight: 600;
+  color: #212529;
+}
+
+.budget-total {
+  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+  color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.budget-difference {
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.assumptions {
+  border-top: 1px solid #e9ecef;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.assumptions ul {
+  padding-left: 1.25rem;
+}
+
+.assumptions li {
+  margin-bottom: 0.25rem;
+}
+
+.day-card {
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.day-card:hover {
+  border-color: #dee2e6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.day-header h6 {
+  color: #212529;
+}
+
+.day-number-badge {
+  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.activity-slot {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.activity-time {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+.activity-time.morning { color: #fd7e14; }
+.activity-time.afternoon { color: #0d6efd; }
+.activity-time.evening { color: #6f42c1; }
+
+.activity-text {
+  flex: 1;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #343a40;
+}
+
+.day-notes {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #fff3cd;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  border-left: 3px solid #ffc107;
+}
+
+.day-cost {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f1f3f5;
+  font-weight: 600;
+  color: #198754;
+  font-size: 0.875rem;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-category {
+  background: #e7f1ff;
+  color: #0d6efd;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.suggestion-text {
+  flex: 1;
+  font-size: 0.8rem;
+}
+
+.suggestion-savings {
+  font-weight: 600;
+  color: #198754;
+  font-size: 0.8rem;
+}
+
+.recent-itinerary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.recent-itinerary-item:hover {
+  background: #f8f9fa;
+  border-color: #e9ecef;
+}
+
+.recent-itinerary-destination {
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 0.25rem;
+}
+
+.recent-itinerary-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.recent-itinerary-cost {
+  font-weight: 700;
+  color: #0d6efd;
+  font-size: 1rem;
+}
+
+.itinerary-card {
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.itinerary-card:hover {
+  border-color: #0d6efd;
+  box-shadow: 0 4px 16px rgba(13, 110, 253, 0.1);
+}
+
+.itinerary-card-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.itinerary-category-badge {
+  background: #0d6efd;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.itinerary-card-body {
+  padding: 1.25rem;
+}
+
+.itinerary-stat {
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.itinerary-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+.itinerary-stat-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.detail-stat {
+  text-align: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.detail-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.detail-stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.day-cost-badge {
+  background: #e8f5e9;
+  color: #198754;
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .interests-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .summary-value {
+    font-size: 1.25rem;
+  }
+  
+  .budget-category-card {
+    padding: 0.5rem;
+  }
+  
+  .activity-time {
+    min-width: 80px;
+    font-size: 0.7rem;
+  }
+}

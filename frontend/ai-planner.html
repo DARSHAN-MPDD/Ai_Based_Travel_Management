@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Trip Planner - TravelMind AI</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/planner.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-primary" href="index.html">
+        <i class="fas fa-compass me-2"></i>TravelMind AI
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="destinations.html">Destinations</a></li>
+          <li class="nav-item"><a class="nav-link" href="packages.html">Packages</a></li>
+          <li class="nav-item"><a class="nav-link active" href="ai-planner.html">AI Planner</a></li>
+          <li class="nav-item"><a class="nav-link" href="my-bookings.html">My Bookings</a></li>
+          <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+        </ul>
+        <div class="dropdown" id="userMenu" style="display:none;">
+          <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="fas fa-user me-1"></i><span id="userName"></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user me-2"></i>Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="pt-5" style="padding-top: 80px;">
+    <div class="container py-4">
+      <div class="row mb-4">
+        <div class="col">
+          <h1 class="fw-bold">AI Trip Planner</h1>
+          <p class="text-muted">Generate personalized itineraries with smart budget planning</p>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <div class="card planner-card">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="fas fa-magic me-2 text-primary"></i>Plan Your Trip</h5>
+            </div>
+            <div class="card-body">
+              <form id="plannerForm">
+                <div class="row g-3 mb-4">
+                  <div class="col-md-6">
+                    <label for="destination_id" class="form-label fw-semibold">Destination <span class="text-danger">*</span></label>
+                    <select class="form-select" id="destination_id" required>
+                      <option value="" disabled selected>Select a destination</option>
+                    </select>
+                    <div class="form-text">Choose from our curated destinations</div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="start_date" class="form-label fw-semibold">Start Date</label>
+                    <input type="date" class="form-control" id="start_date" min="">
+                    <div class="form-text">Optional - helps with seasonal planning</div>
+                  </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                  <div class="col-md-4">
+                    <label for="duration" class="form-label fw-semibold">Duration (days) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="duration" min="1" max="30" value="3" required>
+                    <div class="form-text">1-30 days</div>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="budget" class="form-label fw-semibold">Total Budget (₹) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="budget" min="1000" step="1000" value="20000" required>
+                    <div class="form-text">Your total trip budget in INR</div>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="travelers" class="form-label fw-semibold">Travelers <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="travelers" min="1" max="20" value="1" required>
+                    <div class="form-text">1-20 people</div>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <label class="form-label fw-semibold">Travel Interests</label>
+                  <div class="interests-grid" id="interestsContainer">
+                    <!-- Populated by JS -->
+                  </div>
+                  <div class="form-text">Select your interests to personalize activities</div>
+                </div>
+
+                <div class="mb-4">
+                  <label for="travel_type" class="form-label fw-semibold">Travel Type</label>
+                  <select class="form-select" id="travel_type">
+                    <option value="">No preference (auto-detect from interests)</option>
+                    <option value="nature">Nature</option>
+                    <option value="adventure">Adventure</option>
+                    <option value="beach">Beach</option>
+                    <option value="heritage">Heritage</option>
+                    <option value="culture">Culture</option>
+                    <option value="spiritual">Spiritual</option>
+                    <option value="wildlife">Wildlife</option>
+                    <option value="relaxation">Relaxation</option>
+                    <option value="family">Family</option>
+                    <option value="honeymoon">Honeymoon</option>
+                    <option value="budget">Budget</option>
+                    <option value="luxury">Luxury</option>
+                  </select>
+                  <div class="form-text">Optional - helps fine-tune recommendations</div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                  <button type="button" class="btn btn-outline-secondary" id="resetBtn">
+                    <i class="fas fa-undo me-1"></i>Reset
+                  </button>
+                  <button type="submit" class="btn btn-primary btn-lg" id="generateBtn">
+                    <i class="fas fa-magic me-2"></i>Generate Itinerary
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div id="resultContainer" style="display: none;">
+            <div class="card planner-card mt-4">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-route me-2 text-success"></i>Your Itinerary</h5>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="saveItineraryBtn" style="display: none;">
+                  <i class="fas fa-save me-1"></i>Save Itinerary
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="row g-3 mb-4">
+                  <div class="col-md-3">
+                    <div class="summary-card">
+                      <div class="summary-value" id="summaryDestination">-</div>
+                      <div class="summary-label">Destination</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="summary-card">
+                      <div class="summary-value" id="summaryDuration">-</div>
+                      <div class="summary-label">Duration</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="summary-card">
+                      <div class="summary-value" id="summaryTravelers">-</div>
+                      <div class="summary-label">Travelers</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="summary-card">
+                      <div class="summary-value" id="summaryBudget">-</div>
+                      <div class="summary-label">Budget</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="budget-status mb-4" id="budgetStatusContainer">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Budget Analysis</h6>
+                    <span class="badge" id="budgetStatusBadge">Within Budget</span>
+                  </div>
+                  <div class="row g-2" id="budgetBreakdown">
+                    <!-- Populated by JS -->
+                  </div>
+                  <div class="mt-3" id="suggestionsContainer" style="display: none;">
+                    <h6><i class="fas fa-lightbulb me-1 text-warning"></i>Cost-Saving Suggestions</h6>
+                    <ul class="mb-0" id="suggestionsList"></ul>
+                  </div>
+                </div>
+
+                <div id="itineraryDays">
+                  <!-- Days populated by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="loadingContainer" class="text-center py-5" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Generating itinerary...</span>
+            </div>
+            <p class="mt-2 text-muted">AI is crafting your perfect trip...</p>
+          </div>
+
+          <div id="errorContainer" class="alert alert-danger d-flex align-items-center" style="display: none;" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <div id="errorMessage"></div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card planner-card h-100 sticky-top" style="top: 100px;">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="fas fa-info-circle me-2 text-info"></i>How It Works</h5>
+            </div>
+            <div class="card-body">
+              <div class="step mb-3">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                  <h6>Choose Destination</h6>
+                  <p class="text-muted small mb-0">Select from 12 curated Indian destinations</p>
+                </div>
+              </div>
+              <div class="step mb-3">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                  <h6>Set Preferences</h6>
+                  <p class="text-muted small mb-0">Duration, budget, travelers, interests</p>
+                </div>
+              </div>
+              <div class="step mb-3">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                  <h6>AI Generates Plan</h6>
+                  <p class="text-muted small mb-0">Day-by-day itinerary with smart budgeting</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                  <h6>Review & Save</h6>
+                  <p class="text-muted small mb-0">Check budget status, save for later</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card planner-card mt-3 h-100 sticky-top" style="top: 420px;">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="fas fa-history me-2 text-warning"></i>Recent Itineraries</h5>
+            </div>
+            <div class="card-body" id="recentItineraries">
+              <div class="text-center py-3">
+                <i class="fas fa-clock fa-2x text-muted mb-2"></i>
+                <p class="text-muted small mb-2">Loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/planner.js"></script>
+</body>
+</html>
