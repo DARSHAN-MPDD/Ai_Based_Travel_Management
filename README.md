@@ -74,6 +74,8 @@ TravelMind-AI/
 │   └── js/                 # Client scripts
 │
 ├── ai/                     # Python AI/ML (Phase 7+)
+│   ├── itinerary.py        # AI itinerary generator
+│   └── requirements.txt    # Python dependencies
 ├── database/               # SQL schema & seeds
 ├── docs/                   # Documentation
 └── tests/                  # Test files
@@ -87,7 +89,7 @@ TravelMind-AI/
 | Backend | Node.js, Express.js |
 | Database | MySQL 8.x |
 | Auth | bcryptjs, JWT |
-| AI/ML | Python, pandas, numpy, scikit-learn |
+| AI/ML | Python 3.10+, pandas, numpy, scikit-learn |
 
 ## 📚 Documentation
 
@@ -132,9 +134,9 @@ TravelMind-AI/
 - `PUT /api/preferences` - Update preferences
 - `POST /api/recommendations` - AI recommendations
 - `GET /api/recommendations` - Saved recommendations
-- `POST /api/itinerary` - Generate itinerary
-- `GET /api/itinerary` - List user itineraries
-- `GET /api/itinerary/:id` - Get itinerary details
+- `POST /api/itinerary` - Generate itinerary (supports pace: relaxed/balanced/packed)
+- `GET /api/itinerary` - List user itineraries (paginated)
+- `GET /api/itinerary/:id` - Get itinerary details (includes per-day cost breakdown)
 - `POST /api/bookings` - Create booking
 - `GET /api/bookings` - My bookings
 - `GET /api/bookings/:id` - Booking details
@@ -224,8 +226,55 @@ BCRYPT_SALT_ROUNDS=10
 | 8 | ⏳ | Booking + My Bookings |
 | 9 | ⏳ | Admin dashboard + reviews + chatbot |
 | 10 | ⏳ | Final polish + testing + deploy prep |
+| 11 | ✅ | AI Itinerary Generator with pace control, per-day costs, Python integration |
 
-## 🤝 Contributing
+## 🤖 AI Itinerary Generator (Phase 11)
+
+The AI itinerary generator creates personalized travel plans using:
+
+### Features
+- **Interest Matching**: Cosine similarity between user interests (nature, adventure, beach, history, culture, food, photography, shopping) and destination scores
+- **Budget Awareness**: Respects user budget, destination estimated budget, and traveler count
+- **Duration Optimization**: Matches trip length to destination recommended duration
+- **Travel Type Alignment**: Maps travel types to destination categories (Hill Station → nature/adventure, Beach → beach/relaxation, etc.)
+- **Travel Pace Control**: Three modes - Relaxed (1 activity/slot), Balanced (2 activities/slot), Packed (3 activities/slot)
+- **Transparent Scoring**: Weighted match score (50% interests, 20% budget, 15% duration, 15% category)
+- **Cost Breakdown**: Per-day estimates for transport, accommodation, food, activities, miscellaneous
+- **Smart Activity Selection**: Destination-category-aware activity templates with deduplication
+- **Practical Notes**: Context-aware travel tips (altitude, beach safety, photography gear, etc.)
+
+### AI Architecture
+```
+User Input → Destination Data → Scoring Algorithm → Activity Selection → Budget Calculation → Itinerary
+```
+
+**Python Integration**: `ai/itinerary.py` runs as a subprocess from Node.js with full fallback to Node.js implementation if Python unavailable.
+
+### Itinerary API Request
+```json
+POST /api/itinerary
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "destination_id": 1,
+  "duration": 3,
+  "budget": 20000,
+  "travelers": 2,
+  "interests": ["nature", "photography"],
+  "travel_type": "nature",
+  "pace": "balanced",
+  "start_date": "2026-11-15"
+}
+```
+
+### Response Includes
+- Day-by-day schedule with morning/afternoon/evening activities
+- Per-day cost breakdown (transport, accommodation, food, activities, misc)
+- Total estimated cost vs budget status
+- AI match score and pace indicator
+- Cost-saving suggestions if over budget
+- Budget assumptions and travel tips
 
 This is a college mini project. For educational purposes.
 

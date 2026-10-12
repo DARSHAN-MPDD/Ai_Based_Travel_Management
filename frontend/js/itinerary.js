@@ -196,6 +196,22 @@ async function loadItineraryDetail(itineraryId) {
             </div>
           </div>
 
+          ${data.pace || data.match_score ? `
+          <div class="pace-info mb-4 p-3 rounded bg-light">
+            <div class="row">
+              ${data.pace ? `
+              <div class="col-md-6">
+                <h6><i class="fas fa-running me-1 text-primary"></i>Travel Pace</h6>
+                <p class="text-muted small mb-0">${data.pace.charAt(0).toUpperCase() + data.pace.slice(1)}</p>
+              </div>` : ''}
+              ${data.match_score ? `
+              <div class="col-md-6">
+                <h6><i class="fas fa-brain me-1 text-info"></i>AI Match Score</h6>
+                <p class="text-muted small mb-0"><strong>${data.match_score}%</strong></p>
+              </div>` : ''}
+            </div>
+          </div>` : ''}
+
           <div class="budget-status mb-4 p-3 rounded">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h6 class="mb-0"><i class="fas fa-chart-pie me-1"></i>Budget Analysis</h6>

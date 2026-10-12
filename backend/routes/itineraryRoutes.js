@@ -38,6 +38,10 @@ const generateValidation = [
     .optional()
     .isIn(['nature', 'adventure', 'beach', 'heritage', 'culture', 'spiritual', 'wildlife', 'relaxation', 'family', 'honeymoon', 'budget', 'luxury'])
     .withMessage('Invalid travel type'),
+  body('pace')
+    .optional()
+    .isIn(['relaxed', 'balanced', 'packed'])
+    .withMessage('Invalid pace. Must be relaxed, balanced, or packed'),
   body('start_date')
     .optional()
     .isISO8601()

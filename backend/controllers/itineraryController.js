@@ -63,6 +63,12 @@ const validateItineraryRequest = (body) => {
     }
   }
 
+  if (body.pace !== undefined && body.pace !== null && body.pace !== '') {
+    if (!itineraryService.VALID_PACES.includes(body.pace)) {
+      errors.push(`Invalid pace. Valid options: ${itineraryService.VALID_PACES.join(', ')}`);
+    }
+  }
+
   if (body.start_date !== undefined && body.start_date !== null && body.start_date !== '') {
     const date = new Date(body.start_date);
     if (isNaN(date.getTime())) {
@@ -93,6 +99,7 @@ const generateItinerary = async (req, res) => {
       travelers,
       interests = [],
       travel_type = null,
+      pace = 'balanced',
       start_date = null
     } = req.body;
 
@@ -104,13 +111,15 @@ const generateItinerary = async (req, res) => {
       travelers: parseInt(travelers),
       interests,
       travelType: travel_type,
+      pace,
       startDate: start_date
     });
 
     const itineraryId = await itineraryService.saveItinerary(userId, {
       ...itineraryData,
       interests,
-      travel_type
+      travel_type,
+      pace
     });
 
     const savedItinerary = await itineraryService.getItineraryById(itineraryId, userId);
@@ -133,6 +142,8 @@ const generateItinerary = async (req, res) => {
         budget_difference: itineraryData.budget_difference,
         suggestions: itineraryData.suggestions,
         assumptions: itineraryData.assumptions,
+        pace: itineraryData.pace,
+        match_score: itineraryData.match_score,
         days: savedItinerary.days.map(day => ({
           day_number: day.day_number,
           day_title: day.day_title,
@@ -140,6 +151,7 @@ const generateItinerary = async (req, res) => {
           afternoon_activity: day.afternoon_activity,
           evening_activity: day.evening_activity,
           estimated_cost: day.estimated_cost,
+          cost_breakdown: day.cost_breakdown,
           notes: day.notes
         }))
       }
@@ -214,6 +226,7 @@ const getItineraryById = async (req, res) => {
         suggestions: budgetResult.suggestions,
         assumptions: budgetResult.assumptions,
         travel_type: itinerary.travel_type,
+        pace: itinerary.pace || 'balanced',
         interests: itinerary.interests,
         start_date: itinerary.start_date,
         status: itinerary.status,
@@ -225,6 +238,7 @@ const getItineraryById = async (req, res) => {
           afternoon_activity: day.afternoon_activity,
           evening_activity: day.evening_activity,
           estimated_cost: day.estimated_cost,
+          cost_breakdown: day.cost_breakdown,
           notes: day.notes
         }))
       }

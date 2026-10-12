@@ -1,8 +1,11 @@
 const { pool } = require('../config/database');
 const budgetService = require('./budgetService');
+const { spawn } = require('child_process');
+const path = require('path');
 
 const VALID_INTERESTS = ['nature', 'adventure', 'beach', 'history', 'culture', 'food', 'photography', 'shopping'];
 const VALID_TRAVEL_TYPES = ['nature', 'adventure', 'beach', 'heritage', 'culture', 'spiritual', 'wildlife', 'relaxation', 'family', 'honeymoon', 'budget', 'luxury'];
+const VALID_PACES = ['relaxed', 'balanced', 'packed'];
 
 const ACTIVITY_TEMPLATES = {
   nature: {
@@ -53,6 +56,12 @@ const DEFAULT_ACTIVITIES = {
   evening: ['Dinner at recommended restaurant', 'Evening walk', 'Relax at accommodation']
 };
 
+const PACE_CONFIG = {
+  relaxed: { activities_per_slot: 1, max_activities_per_day: 3 },
+  balanced: { activities_per_slot: 2, max_activities_per_day: 6 },
+  packed: { activities_per_slot: 3, max_activities_per_day: 9 }
+};
+
 function getActivitiesForInterest(interest, timeOfDay) {
   const templates = ACTIVITY_TEMPLATES[interest];
   if (templates && templates[timeOfDay] && templates[timeOfDay].length > 0) {
@@ -61,9 +70,12 @@ function getActivitiesForInterest(interest, timeOfDay) {
   return DEFAULT_ACTIVITIES[timeOfDay] || ['Enjoy your free time'];
 }
 
-function selectActivities(interests, travelType, destination, duration, dayNumber) {
+function selectActivities(interests, travelType, destination, duration, dayNumber, pace = 'balanced') {
   const timeSlots = ['morning', 'afternoon', 'evening'];
   const selected = {};
+  
+  const paceCfg = PACE_CONFIG[pace] || PACE_CONFIG.balanced;
+  const maxPerSlot = paceCfg.activities_per_slot;
   
   const primaryInterests = interests.length > 0 ? interests : 
     (destination.category === 'Hill Station' ? ['nature', 'adventure'] :
@@ -76,15 +88,33 @@ function selectActivities(interests, travelType, destination, duration, dayNumbe
   const allRelevantInterests = [...new Set([...primaryInterests, ...(travelType ? [travelType] : [])])]
     .filter(i => VALID_INTERESTS.includes(i) || VALID_TRAVEL_TYPES.includes(i));
 
+  const DESTINATION_INTEREST_SCORES = {
+    'Hill Station': {'nature': 90, 'adventure': 70, 'beach': 10, 'history': 40, 'culture': 60, 'food': 70, 'photography': 85, 'shopping': 50},
+    'Beach': {'nature': 60, 'adventure': 50, 'beach': 95, 'history': 60, 'culture': 55, 'food': 70, 'photography': 80, 'shopping': 40},
+    'Heritage': {'nature': 30, 'adventure': 40, 'beach': 10, 'history': 95, 'culture': 90, 'food': 80, 'photography': 75, 'shopping': 85},
+    'Adventure': {'nature': 80, 'adventure': 95, 'beach': 10, 'history': 40, 'culture': 55, 'food': 65, 'photography': 80, 'shopping': 50},
+    'Backwaters': {'nature': 85, 'adventure': 30, 'beach': 60, 'history': 50, 'culture': 75, 'food': 80, 'photography': 80, 'shopping': 45},
+    'Wildlife': {'nature': 95, 'adventure': 85, 'beach': 5, 'history': 30, 'culture': 50, 'food': 60, 'photography': 90, 'shopping': 30},
+    'Desert': {'nature': 70, 'adventure': 80, 'beach': 10, 'history': 60, 'culture': 75, 'food': 70, 'photography': 85, 'shopping': 60},
+    'Spiritual': {'nature': 50, 'adventure': 20, 'beach': 10, 'history': 70, 'culture': 90, 'food': 60, 'photography': 65, 'shopping': 55},
+    'default': {'nature': 50, 'adventure': 50, 'beach': 50, 'history': 50, 'culture': 50, 'food': 50, 'photography': 50, 'shopping': 50}
+  };
+  
+  const destScores = DESTINATION_INTEREST_SCORES[destination.category] || DESTINATION_INTEREST_SCORES.default;
+
   timeSlots.forEach(slot => {
     const activities = [];
     const usedActivities = new Set();
     
-    allRelevantInterests.forEach(interest => {
+    const scoredInterests = [...allRelevantInterests].sort((a, b) => 
+      (destScores[b] || 50) - (destScores[a] || 50)
+    );
+    
+    scoredInterests.forEach(interest => {
       const pool = getActivitiesForInterest(interest, slot);
       pool.forEach(activity => {
         const normalized = activity.toLowerCase();
-        if (!usedActivities.has(normalized) && activities.length < 3) {
+        if (!usedActivities.has(normalized) && activities.length < maxPerSlot) {
           activities.push(activity);
           usedActivities.add(normalized);
         }
@@ -92,10 +122,10 @@ function selectActivities(interests, travelType, destination, duration, dayNumbe
     });
 
     if (activities.length === 0) {
-      activities.push(...DEFAULT_ACTIVITIES[slot].slice(0, 2));
+      activities.push(...DEFAULT_ACTIVITIES[slot].slice(0, maxPerSlot));
     }
 
-    selected[slot] = activities.slice(0, 2);
+    selected[slot] = activities.slice(0, maxPerSlot);
   });
 
   return selected;
@@ -144,14 +174,26 @@ function generateNotes(dayNumber, duration, destination, activities) {
     notes.push('Respect local beach regulations');
   }
   
-  if (activities.morning.some(a => a.toLowerCase().includes('trek') || a.toLowerCase().includes('hike'))) {
+  const allActs = [
+    ...activities.morning, 
+    ...activities.afternoon, 
+    ...activities.evening
+  ].join(' ').toLowerCase();
+  
+  if (allActs.includes('trek') || allActs.includes('hike') || allActs.includes('climb')) {
     notes.push('Wear comfortable trekking shoes');
     notes.push('Carry water and snacks for outdoor activities');
   }
   
-  if (activities.afternoon.some(a => a.toLowerCase().includes('water') || a.toLowerCase().includes('swim') || a.toLowerCase().includes('raft'))) {
+  if (allActs.includes('water') || allActs.includes('swim') || allActs.includes('raft') || 
+      allActs.includes('kayak') || allActs.includes('snorkel') || allActs.includes('dive') || allActs.includes('boat')) {
     notes.push('Bring swimwear and towel for water activities');
     notes.push('Follow safety instructions from guides');
+  }
+  
+  if (allActs.includes('photo') || allActs.includes('shoot') || allActs.includes('photography')) {
+    notes.push('Carry extra batteries and memory cards');
+    notes.push('Golden hour (sunrise/sunset) offers best lighting');
   }
   
   notes.push('Keep emergency contacts and local guide information handy');
@@ -180,7 +222,58 @@ function parseDestinationActivities(destination) {
   }
 }
 
-async function generateItinerary(params) {
+function runPythonItinerary(inputData) {
+  return new Promise((resolve, reject) => {
+    const scriptPath = path.join(__dirname, '..', '..', 'ai', 'itinerary.py');
+    const pythonCmd = process.platform === 'win32' ? 'py' : 'python3';
+    
+    const child = spawn(pythonCmd, [scriptPath], {
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+    
+    let stdout = '';
+    let stderr = '';
+    
+    child.stdin.write(JSON.stringify(inputData));
+    child.stdin.end();
+    
+    child.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+    
+    child.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+    
+    child.on('close', (code) => {
+      if (code === 0) {
+        try {
+          const result = JSON.parse(stdout.trim());
+          if (result.error) {
+            reject(new Error(result.error));
+          } else {
+            resolve({ ...result, source: 'python' });
+          }
+        } catch (e) {
+          reject(new Error('Failed to parse Python output: ' + e.message));
+        }
+      } else {
+        reject(new Error(`Python script exited with code ${code}: ${stderr}`));
+      }
+    });
+    
+    child.on('error', (err) => {
+      reject(new Error('Failed to spawn Python process: ' + err.message));
+    });
+    
+    setTimeout(() => {
+      child.kill();
+      reject(new Error('Python script timeout'));
+    }, 30000);
+  });
+}
+
+async function generateItineraryWithPython(params) {
   const {
     userId,
     destinationId,
@@ -189,7 +282,90 @@ async function generateItinerary(params) {
     travelers,
     interests = [],
     travelType = null,
-    startDate = null
+    startDate = null,
+    pace = 'balanced'
+  } = params;
+
+  const destination = await getDestinationById(destinationId);
+  if (!destination) {
+    throw new Error('DESTINATION_NOT_FOUND');
+  }
+
+  const pythonInput = {
+    userId,
+    destinationId,
+    duration,
+    budget,
+    travelers,
+    interests,
+    travelType,
+    startDate,
+    pace,
+    destination: {
+      id: destination.id,
+      name: destination.name,
+      description: destination.description,
+      location: destination.location,
+      category: destination.category,
+      estimated_budget: destination.estimated_budget,
+      recommended_duration: destination.recommended_duration,
+      best_time: destination.best_time,
+      activities: destination.activities,
+      image_url: destination.image_url,
+      nature_score: destination.nature_score,
+      adventure_score: destination.adventure_score,
+      beach_score: destination.beach_score,
+      history_score: destination.history_score,
+      culture_score: destination.culture_score,
+      food_score: destination.food_score,
+      photography_score: destination.photography_score,
+      shopping_score: destination.shopping_score
+    }
+  };
+
+  try {
+    const pythonResult = await runPythonItinerary(pythonInput);
+    
+    const dayCosts = budgetService.calculateItineraryDayCosts(
+      pythonResult.days,
+      pythonResult.budget_breakdown,
+      destination.estimated_budget,
+      duration,
+      travelers
+    );
+
+    pythonResult.days.forEach((day, index) => {
+      day.estimated_cost = dayCosts[index].estimated_cost;
+    });
+
+    return {
+      ...pythonResult,
+      total_estimated_cost: pythonResult.total_estimated_cost,
+      budget_status: pythonResult.budget_status,
+      budget_breakdown: pythonResult.budget_breakdown,
+      budget_difference: pythonResult.budget_difference,
+      suggestions: pythonResult.suggestions,
+      assumptions: pythonResult.assumptions,
+      days: pythonResult.days,
+      start_date: startDate
+    };
+  } catch (pythonError) {
+    console.warn('Python AI failed, falling back to Node.js:', pythonError.message);
+    return generateItineraryWithNode(params);
+  }
+}
+
+async function generateItineraryWithNode(params) {
+  const {
+    userId,
+    destinationId,
+    duration,
+    budget,
+    travelers,
+    interests = [],
+    travelType = null,
+    startDate = null,
+    pace = 'balanced'
   } = params;
 
   const destination = await getDestinationById(destinationId);
@@ -201,7 +377,7 @@ async function generateItinerary(params) {
   
   const days = [];
   for (let day = 1; day <= duration; day++) {
-    const activities = selectActivities(interests, travelType, destination, duration, day);
+    const activities = selectActivities(interests, travelType, destination, duration, day, pace);
     const dayTitle = generateDayTitle(day, duration, destination, travelType);
     const notes = generateNotes(day, duration, destination, activities);
     
@@ -224,17 +400,18 @@ async function generateItinerary(params) {
   };
   const budgetResult = budgetService.calculateBudgetBreakdown(budgetParams);
 
-  const dayCosts = budgetService.calculateItineraryDayCosts(
-    days,
-    budgetResult.breakdown,
-    destination.estimated_budget,
-    duration,
-    travelers
-  );
+const dayCosts = budgetService.calculateItineraryDayCosts(
+      days,
+      budgetResult.breakdown,
+      destination.estimated_budget,
+      duration,
+      travelers
+    );
 
-  days.forEach((day, index) => {
-    day.estimated_cost = dayCosts[index].estimated_cost;
-  });
+    days.forEach((day, index) => {
+      day.estimated_cost = dayCosts[index].estimated_cost;
+      day.cost_breakdown = dayCosts[index].cost_breakdown;
+    });
 
   const totalEstimatedCost = budgetResult.total_estimated_cost;
 
@@ -250,8 +427,20 @@ async function generateItinerary(params) {
     suggestions: budgetResult.suggestions,
     assumptions: budgetResult.assumptions,
     days,
-    start_date: startDate
+    start_date: startDate,
+    pace,
+    match_score: 75,
+    source: 'nodejs'
   };
+}
+
+async function generateItinerary(params) {
+  try {
+    return await generateItineraryWithPython(params);
+  } catch (error) {
+    console.warn('Falling back to Node.js itinerary generation:', error.message);
+    return await generateItineraryWithNode(params);
+  }
 }
 
 async function saveItinerary(userId, itineraryData) {
@@ -396,5 +585,6 @@ module.exports = {
   getItineraryById,
   getUserItineraries,
   VALID_INTERESTS,
-  VALID_TRAVEL_TYPES
+  VALID_TRAVEL_TYPES,
+  VALID_PACES
 };

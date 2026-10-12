@@ -1,0 +1,31 @@
+{
+  "userId": 1,
+  "destinationId": 1,
+  "duration": 3,
+  "budget": 20000,
+  "travelers": 2,
+  "interests": ["nature", "photography"],
+  "travelType": "nature",
+  "startDate": "2026-11-15",
+  "pace": "balanced",
+  "destination": {
+    "id": 1,
+    "name": "Coorg",
+    "description": "Known as the Scotland of India",
+    "location": "Karnataka",
+    "category": "Hill Station",
+    "estimated_budget": 15000,
+    "recommended_duration": 3,
+    "best_time": "October to March",
+    "activities": "[\"Coffee plantation tours\", \"Trekking\", \"River rafting\", \"Wildlife spotting\", \"Waterfall visits\"]",
+    "image_url": "https://images.unsplash.com/photo-1596422846543-75c6fc6ac79b",
+    "nature_score": 95,
+    "adventure_score": 80,
+    "beach_score": 10,
+    "history_score": 40,
+    "culture_score": 70,
+    "food_score": 85,
+    "photography_score": 90,
+    "shopping_score": 60
+  }
+}

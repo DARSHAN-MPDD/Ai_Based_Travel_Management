@@ -119,6 +119,16 @@
                   <div class="form-text">Optional - helps fine-tune recommendations</div>
                 </div>
 
+                <div class="mb-4">
+                  <label for="pace" class="form-label fw-semibold">Travel Pace</label>
+                  <select class="form-select" id="pace">
+                    <option value="relaxed">Relaxed - Light schedule, more free time (1 activity per time slot)</option>
+                    <option value="balanced" selected>Balanced - Moderate schedule (2 activities per time slot)</option>
+                    <option value="packed">Packed - Full schedule, maximize experiences (3 activities per time slot)</option>
+                  </select>
+                  <div class="form-text">Controls how many activities are planned each day</div>
+                </div>
+
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                   <button type="button" class="btn btn-outline-secondary" id="resetBtn">
                     <i class="fas fa-undo me-1"></i>Reset

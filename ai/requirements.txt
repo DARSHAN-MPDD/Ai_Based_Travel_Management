@@ -1,0 +1,12 @@
+# TravelMind AI - Python AI Dependencies
+# Core dependencies for AI itinerary generator
+
+# The current implementation uses only Python standard library (json, sys, typing)
+# These packages are optional for future advanced ML features:
+# - scikit-learn: for more sophisticated recommendation algorithms
+# - pandas: for data processing pipelines
+# - numpy: for numerical computations
+# - scipy: for scientific computing
+
+# To install optional advanced features:
+# pip install scikit-learn>=1.3.0 pandas>=2.0.0 numpy>=1.24.0 scipy>=1.10.0

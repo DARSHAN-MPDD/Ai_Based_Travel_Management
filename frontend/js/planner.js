@@ -115,6 +115,7 @@ async function generateItinerary() {
     travelers: parseInt(document.getElementById('travelers').value),
     interests: selectedInterests,
     travel_type: document.getElementById('travel_type').value || null,
+    pace: document.getElementById('pace').value || 'balanced',
     start_date: document.getElementById('start_date').value || null
   };
 
@@ -239,6 +240,22 @@ function displayItinerary(data) {
   `;
   breakdownContainer.appendChild(assumptionsContainer);
 
+  if (data.pace) {
+    const paceLabels = {
+      'relaxed': 'Relaxed - Light schedule, more free time',
+      'balanced': 'Balanced - Moderate schedule',
+      'packed': 'Packed - Full schedule, maximize experiences'
+    };
+    const paceContainer = document.createElement('div');
+    paceContainer.className = 'pace-info mt-3 p-3 rounded bg-light';
+    paceContainer.innerHTML = `
+      <h6><i class="fas fa-running me-1 text-primary"></i>Travel Pace: ${data.pace.charAt(0).toUpperCase() + data.pace.slice(1)}</h6>
+      <p class="text-muted small mb-0">${paceLabels[data.pace] || ''}</p>
+      ${data.match_score ? `<div class="mt-2"><small class="text-muted">AI Match Score: <strong>${data.match_score}%</strong></small></div>` : ''}
+    `;
+    breakdownContainer.appendChild(paceContainer);
+  }
+
   const daysContainer = document.getElementById('itineraryDays');
   daysContainer.innerHTML = data.days.map(day => `
     <div class="day-card">
@@ -264,6 +281,18 @@ function displayItinerary(data) {
       <div class="day-cost">
         <i class="fas fa-rupee-sign me-1"></i>Estimated Cost: ${formatCurrency(day.estimated_cost)}
       </div>
+      ${day.cost_breakdown ? `
+      <div class="day-cost-breakdown mt-2 p-2 bg-light rounded small">
+        <strong>Cost Breakdown:</strong>
+        <div class="row g-1 mt-1">
+          <div class="col-6 col-md-3"><span class="text-muted">Transport:</span> ${formatCurrency(day.cost_breakdown.transportation || 0)}</div>
+          <div class="col-6 col-md-3"><span class="text-muted">Accommodation:</span> ${formatCurrency(day.cost_breakdown.accommodation || 0)}</div>
+          <div class="col-6 col-md-3"><span class="text-muted">Food:</span> ${formatCurrency(day.cost_breakdown.food || 0)}</div>
+          <div class="col-6 col-md-3"><span class="text-muted">Activities:</span> ${formatCurrency(day.cost_breakdown.activities || 0)}</div>
+          <div class="col-6 col-md-3"><span class="text-muted">Misc:</span> ${formatCurrency(day.cost_breakdown.miscellaneous || 0)}</div>
+        </div>
+      </div>
+      ` : ''}
     </div>
   `).join('');
 
@@ -283,6 +312,7 @@ function displayItinerary(data) {
           travelers: payload.travelers,
           interests: payload.interests,
           travel_type: payload.travel_type,
+          pace: payload.pace,
           start_date: payload.start_date
         })
       });
