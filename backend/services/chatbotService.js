@@ -1071,7 +1071,7 @@ async function processMessage(message, sessionId, userId) {
           };
         } else {
           const prefs = await getSavedPreferences(userId);
-          result = { intent: 'preferences', result: prefs, isClarificationNeeded: false };
+          result = { intent: 'preferences', prefsResult: prefs, isClarificationNeeded: false };
         }
         break;
 

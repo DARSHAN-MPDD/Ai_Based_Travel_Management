@@ -197,6 +197,37 @@ JWT_EXPIRES_IN=1h
 BCRYPT_SALT_ROUNDS=10
 ```
 
+## 🧪 Testing
+
+### Run API Tests
+```bash
+cd backend
+npm test
+```
+
+All 233 Jest API tests pass, covering:
+- Authentication (login, register, profile)
+- Destination CRUD operations
+- Travel package endpoints
+- Booking management
+- Review submission and retrieval
+- Itinerary generation
+- Chatbot message processing
+
+### Test Documentation
+- Full test results: `docs/testing.md`
+- Bug report: `docs/bug-report.md`
+
+### Manual Testing Checklist
+- [ ] User registration and login flow
+- [ ] Destination browsing and details
+- [ ] Package browsing and booking
+- [ ] Review submission and editing
+- [ ] Itinerary generation via AI Planner
+- [ ] Chatbot interactions
+- [ ] Dashboard statistics
+- [ ] Profile management
+
 ## 🔐 Security
 
 - ✅ bcrypt password hashing (10 rounds)

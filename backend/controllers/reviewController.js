@@ -224,10 +224,17 @@ const getReviewById = async (req, res) => {
       });
     }
 
-    return { review: reviews[0], found: true };
+    return res.json({
+      success: true,
+      message: 'Review retrieved successfully',
+      data: buildReviewResponse(reviews[0])
+    });
   } catch (error) {
     console.error('Get review by ID error:', error);
-    return { review: null, found: false, error: true };
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve review'
+    });
   }
 };
 

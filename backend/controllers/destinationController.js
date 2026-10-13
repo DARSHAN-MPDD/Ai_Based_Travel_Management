@@ -426,7 +426,16 @@ const deleteDestination = async (req, res) => {
       { table: 'itineraries', field: 'destination_id' }
     ];
 
+    const ALLOWED_RELATED_TABLES = new Set(['travel_packages', 'bookings', 'reviews', 'recommendations', 'itineraries']);
+    const ALLOWED_RELATED_FIELDS = new Set(['destination_id']);
+
     for (const check of relatedChecks) {
+      if (!ALLOWED_RELATED_TABLES.has(check.table) || !ALLOWED_RELATED_FIELDS.has(check.field)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid related table or field specified'
+        });
+      }
       const [rows] = await pool.execute(
         `SELECT COUNT(*) as count FROM ${check.table} WHERE ${check.field} = ?`,
         [id]

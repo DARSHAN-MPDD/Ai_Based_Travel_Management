@@ -56,7 +56,7 @@ async function loadDestination(destId) {
     document.getElementById('destCategory').textContent = dest.category || 'N/A';
     document.getElementById('destBestTime').textContent = dest.best_time || 'N/A';
     document.getElementById('destDuration').textContent = dest.recommended_duration ? `${dest.recommended_duration} days` : 'N/A';
-    document.getElementById('destBudget').textContent = dest.estimated_budget ? `$${parseFloat(dest.estimated_budget).toFixed(2)}` : 'N/A';
+    document.getElementById('destBudget').textContent = dest.estimated_budget ? `₹${parseFloat(dest.estimated_budget).toFixed(2)}` : 'N/A';
 
     if (dest.image_url) {
       const img = document.getElementById('destImage');
@@ -75,7 +75,7 @@ async function loadDestination(destId) {
               <h6 class="card-title">${escapeHtml(pkg.name)}</h6>
               <p class="card-text text-muted small">${escapeHtml(pkg.description || '').substring(0, 80)}...</p>
               <div class="d-flex justify-content-between align-items-center">
-                <span class="fw-bold text-primary">$${parseFloat(pkg.price_per_person).toFixed(2)}/person</span>
+                <span class="fw-bold text-primary">₹${parseFloat(pkg.price_per_person).toFixed(2)}/person</span>
                 <span class="badge bg-light text-dark">${pkg.duration_days} days</span>
               </div>
             </div>

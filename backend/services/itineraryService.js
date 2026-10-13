@@ -435,6 +435,10 @@ const dayCosts = budgetService.calculateItineraryDayCosts(
 }
 
 async function generateItinerary(params) {
+  const destination = await getDestinationById(params.destinationId);
+  if (!destination) {
+    throw new Error('DESTINATION_NOT_FOUND');
+  }
   try {
     return await generateItineraryWithPython(params);
   } catch (error) {
