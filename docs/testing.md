@@ -32,6 +32,60 @@ This document summarizes the testing methodology, results, and bug fixes applied
 
 All Jest API tests pass successfully.
 
+## Manual API Testing Results (Phase 14)
+
+All critical endpoints verified working:
+
+### Authentication
+- ✅ POST /api/auth/register - User registration with validation
+- ✅ POST /api/auth/login - User login with JWT token
+- ✅ GET /api/auth/me - Get current user profile
+- ✅ Security: Duplicate email rejection, invalid token handling
+
+### Destinations & Packages
+- ✅ GET /api/destinations - List with pagination, filters, search
+- ✅ GET /api/destinations/:id - Detail with packages
+- ✅ GET /api/destinations/:id/packages - Packages for destination
+- ✅ GET /api/packages - List with filters, pagination
+- ✅ GET /api/packages/:id - Package detail
+
+### Preferences & Recommendations
+- ✅ GET /api/preferences - Retrieve user preferences
+- ✅ POST /api/preferences - Save preferences
+- ✅ PUT /api/preferences - Update preferences
+- ✅ POST /api/recommendations - Generate AI recommendations
+- ✅ GET /api/recommendations - Retrieve saved recommendations
+
+### Itinerary
+- ✅ POST /api/itinerary - Generate itinerary (Python + Node.js fallback)
+- ✅ GET /api/itinerary - List user itineraries (paginated)
+- ✅ GET /api/itinerary/:id - Get itinerary with day-by-day cost breakdown
+
+### Bookings
+- ✅ POST /api/bookings - Create booking with server-side price calculation
+- ✅ GET /api/bookings - List user bookings
+- ✅ GET /api/bookings/:id - Booking detail (ownership enforced)
+- ✅ PUT /api/bookings/:id/cancel - Cancel booking (status validation)
+
+### Reviews
+- ✅ POST /api/reviews - Submit review (rating 1-5)
+- ✅ GET /api/reviews/:destinationId - List reviews (paginated)
+- ✅ GET /api/reviews/:destinationId/summary - Average rating & distribution
+- ✅ PUT /api/reviews/:id - Update own review
+- ✅ DELETE /api/reviews/:id - Delete own review
+
+### Chatbot
+- ✅ POST /api/chatbot/message - Process message (with/without auth)
+- ✅ GET /api/chatbot/session - Get session history
+- ✅ DELETE /api/chatbot/session - Clear session
+
+### Admin (Role-based access verified)
+- ✅ GET /api/admin/bookings - All bookings (admin only)
+- ✅ GET /api/admin/reviews - All reviews (admin only)
+- ✅ PUT /api/admin/bookings/:id/status - Update booking status (validated transitions)
+- ✅ DELETE /api/admin/reviews/:id - Delete any review (admin only)
+- ✅ Security: Non-admin users blocked with 403
+
 ## Bugs Fixed in Phase 13
 
 1. **chatbotService.js preferences intent bug** — `result` property name mismatch between `handlePreferences` and `buildIntentReply`. Fixed by changing `result: prefs` to `prefsResult: prefs`.
@@ -48,11 +102,13 @@ All Jest API tests pass successfully.
 
 ## Manual Testing Checklist
 
-- [ ] User registration and login flow
-- [ ] Destination browsing and details
-- [ ] Package browsing and booking
-- [ ] Review submission and editing
-- [ ] Itinerary generation via AI Planner
-- [ ] Chatbot interactions
-- [ ] Dashboard statistics
-- [ ] Profile management
+- [x] User registration and login flow
+- [x] Destination browsing and details
+- [x] Package browsing and booking
+- [x] Review submission and editing
+- [x] Itinerary generation via AI Planner
+- [x] Chatbot interactions
+- [x] Dashboard statistics
+- [x] Profile management
+- [x] Admin panel access control
+- [x] Authorization and ownership checks
