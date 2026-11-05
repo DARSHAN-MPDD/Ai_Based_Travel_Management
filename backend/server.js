@@ -141,9 +141,18 @@ app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.use(express.static(path.join(__dirname, '../frontend')));
+app.use('/images', express.static(path.join(__dirname, '../images')));
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+
+app.get('/packages', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/packages.html'));
+});
+
+app.get('/destinations', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/destinations.html'));
 });
 
 app.use((req, res, next) => {

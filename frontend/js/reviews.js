@@ -1,5 +1,3 @@
-const API_BASE = '/api';
-
 function escapeHtml(text) {
   if (text === null || text === undefined) return '';
   const div = document.createElement('div');
@@ -60,17 +58,61 @@ async function loadDestination(destId) {
 
     if (dest.image_url) {
       const img = document.getElementById('destImage');
-      img.src = dest.image_url;
+      // Prefer the local destination photo; fall back to the DB image and
+      // then to a stable stock photo if both fail to load.
+      const localPrimary = DestinationImages.getPrimaryImage(dest.name);
+      img.src = dest.image_url || localPrimary;
       img.alt = dest.name;
+      img.onerror = function () {
+        this.onerror = null;
+        if (this.src !== localPrimary) {
+          this.src = localPrimary;
+        } else {
+          this.src = 'https://images.unsplash.com/photo-1526525108745-5f7e7a9c1f7e?w=800&q=80';
+          this.onerror = function () { this.style.display = 'none'; };
+        }
+      };
+    } else {
+      const img = document.getElementById('destImage');
+      const localPrimary = DestinationImages.getPrimaryImage(dest.name);
+      img.src = localPrimary;
+      img.alt = dest.name;
+      img.onerror = function () {
+        this.onerror = null;
+        this.src = 'https://images.unsplash.com/photo-1526525108745-5f7e7a9c1f7e?w=800&q=80';
+        this.onerror = function () { this.style.display = 'none'; };
+      };
+    }
+
+    // Populate the local destination gallery with the remaining photos.
+    const galleryGrid = document.getElementById('destGalleryGrid');
+    const gallerySection = document.getElementById('destGallery');
+    if (galleryGrid && gallerySection && DestinationImages) {
+      const gallery = DestinationImages.getGalleryImages(dest.name);
+      if (gallery && gallery.length > 0) {
+        galleryGrid.innerHTML = gallery.map((url, i) => `
+          <div class="col-6 col-md-4 col-lg-3">
+            <img src="${url}" alt="${escapeHtml(dest.name)} gallery ${i + 1}" class="img-fluid rounded shadow-sm w-100" style="height: 160px; object-fit: cover;" onerror="this.style.display='none';">
+          </div>
+        `).join('');
+        gallerySection.style.display = 'block';
+      }
     }
 
     if (dest.packages && dest.packages.length > 0) {
       const packagesSection = document.getElementById('packagesSection');
       const packagesList = document.getElementById('packagesList');
-      packagesList.innerHTML = dest.packages.map(pkg => `
+      packagesList.innerHTML = dest.packages.map(pkg => {
+        // Prefer the local destination photo for package cards so every
+        // package for a place uses the same image set as the Packages page.
+        const localImg = DestinationImages.getPrimaryImage(pkg.destination_name || dest.name);
+        const imgHtml = (pkg.image_url || localImg)
+          ? `<img src="${pkg.image_url || localImg}" alt="${escapeHtml(pkg.name)}" class="card-img-top" style="height: 150px; object-fit: cover;" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#6a4c93,#9b5de5)';">`
+          : '';
+        return `
         <div class="col-md-6 col-lg-4">
           <div class="card h-100 shadow-sm">
-            ${pkg.image_url ? `<img src="${pkg.image_url}" alt="${escapeHtml(pkg.name)}" class="card-img-top" style="height: 150px; object-fit: cover;">` : ''}
+            ${imgHtml}
             <div class="card-body">
               <h6 class="card-title">${escapeHtml(pkg.name)}</h6>
               <p class="card-text text-muted small">${escapeHtml(pkg.description || '').substring(0, 80)}...</p>
@@ -80,8 +122,8 @@ async function loadDestination(destId) {
               </div>
             </div>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
       packagesSection.style.display = 'block';
     }
 
@@ -501,14 +543,23 @@ async function submitReview() {
 function updateAuthUI() {
   const user = Auth.getCurrentUser();
   const token = localStorage.getItem('token');
+  const navLogin = document.getElementById('navLogin');
+  const navRegister = document.getElementById('navRegister');
+  const tmNavLoginItem = document.getElementById('tmNavLoginItem');
+  const tmNavRegisterItem = document.getElementById('tmNavRegisterItem');
+  const tmUserMenu = document.getElementById('tmUserMenu');
+  const tmUserName = document.getElementById('tmUserName');
+  const tmLogoutBtn = document.getElementById('tmLogoutBtn');
 
   if (token) {
     if (user) {
-      const userNameEl = document.getElementById('userName');
-      if (userNameEl) userNameEl.textContent = user.name || 'User';
+      if (tmUserName) tmUserName.textContent = user.name || 'User';
     }
-    document.getElementById('userMenu').style.display = 'block';
-    document.getElementById('authButtons').style.display = 'none';
+    if (navLogin) navLogin.style.display = 'none';
+    if (navRegister) navRegister.style.display = 'none';
+    if (tmNavLoginItem) tmNavLoginItem.style.display = 'none';
+    if (tmNavRegisterItem) tmNavRegisterItem.style.display = 'none';
+    if (tmUserMenu) tmUserMenu.style.display = 'block';
 
     const authMsg = document.getElementById('reviewAuthMessage');
     authMsg.textContent = `Logged in as ${user.name || 'User'}. You can submit reviews below.`;
@@ -516,8 +567,11 @@ function updateAuthUI() {
 
     document.getElementById('submitReviewSection').style.display = 'block';
   } else {
-    document.getElementById('userMenu').style.display = 'none';
-    document.getElementById('authButtons').style.display = 'block';
+    if (navLogin) navLogin.style.display = 'inline-block';
+    if (navRegister) navRegister.style.display = 'inline-block';
+    if (tmNavLoginItem) tmNavLoginItem.style.display = 'flex';
+    if (tmNavRegisterItem) tmNavRegisterItem.style.display = 'flex';
+    if (tmUserMenu) tmUserMenu.style.display = 'none';
 
     const authMsg = document.getElementById('reviewAuthMessage');
     authMsg.textContent = 'You must be logged in to submit a review.';
@@ -530,10 +584,38 @@ function updateAuthUI() {
 document.addEventListener('DOMContentLoaded', function() {
   updateAuthUI();
 
-  document.getElementById('navLogout')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    Auth.logout();
-  });
+  const tmLogoutBtn = document.getElementById('tmLogoutBtn');
+  if (tmLogoutBtn) {
+    tmLogoutBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      Auth.logout();
+    });
+  }
+
+  const tmUserBtn = document.getElementById('tmUserBtn');
+  const tmUserDropdown = document.getElementById('tmUserDropdown');
+  if (tmUserBtn && tmUserDropdown) {
+    tmUserBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      tmUserDropdown.classList.toggle('show');
+    });
+    document.addEventListener('click', () => {
+      tmUserDropdown.classList.remove('show');
+    });
+  }
+
+  const navToggle = document.getElementById('tmNavToggle');
+  const navLinks = document.getElementById('tmNavLinks');
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('tm-nav-links-open');
+    });
+    navLinks.querySelectorAll('.tm-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('tm-nav-links-open');
+      });
+    });
+  }
 
   const destId = getDestinationId();
   if (!destId) {

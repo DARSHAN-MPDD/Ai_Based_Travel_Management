@@ -6,7 +6,7 @@
 }
 
 .planner-card .card-header {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, var(--surface-soft) 0%, var(--surface-soft) 100%);
   border-bottom: 1px solid #dee2e6;
   padding: 1rem 1.5rem;
 }
@@ -22,7 +22,7 @@
 }
 
 .interest-chip {
-  border: 2px solid #e9ecef;
+  border: 2px solid var(--surface-soft);
   border-radius: 10px;
   overflow: hidden;
   transition: all 0.2s ease;
@@ -30,7 +30,7 @@
 }
 
 .interest-chip:hover {
-  border-color: #0d6efd;
+  border-color: var(--primary);
 }
 
 .interest-chip input[type="checkbox"] {
@@ -49,12 +49,12 @@
 
 .interest-chip label i {
   font-size: 1.5rem;
-  color: #6c757d;
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
 
 .interest-chip input[type="checkbox"]:checked + label {
-  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: white;
 }
 
@@ -63,7 +63,7 @@
 }
 
 .summary-card {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, var(--surface-soft) 0%, var(--surface-soft) 100%);
   border-radius: 10px;
   padding: 1rem;
   text-align: center;
@@ -72,14 +72,14 @@
 .summary-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0d6efd;
+  color: var(--primary);
 }
 
 .summary-label {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #6c757d;
+  color: var(--text-muted);
 }
 
 .step {
@@ -92,7 +92,7 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -109,7 +109,7 @@
 
 .budget-category-card {
   background: white;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--surface-soft);
   border-radius: 8px;
   padding: 0.75rem;
   text-align: center;
@@ -117,13 +117,13 @@
 }
 
 .budget-category-card:hover {
-  border-color: #0d6efd;
+  border-color: var(--primary);
   box-shadow: 0 2px 8px rgba(13, 110, 253, 0.1);
 }
 
 .budget-category-card i {
   font-size: 1.25rem;
-  color: #0d6efd;
+  color: var(--primary);
   margin-bottom: 0.5rem;
 }
 
@@ -131,17 +131,17 @@
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #6c757d;
+  color: var(--text-muted);
   margin-bottom: 0.25rem;
 }
 
 .budget-category-value {
   font-weight: 600;
-  color: #212529;
+  color: var(--text);
 }
 
 .budget-total {
-  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: white;
   border-radius: 8px;
   padding: 1rem;
@@ -160,7 +160,7 @@
 }
 
 .assumptions {
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid var(--surface-soft);
   padding-top: 1rem;
   margin-top: 1rem;
 }
@@ -174,7 +174,7 @@
 }
 
 .day-card {
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--surface-soft);
   border-radius: 10px;
   padding: 1.25rem;
   margin-bottom: 1rem;
@@ -193,15 +193,15 @@
   align-items: flex-start;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #f1f3f5;
+  border-bottom: 1px solid var(--surface-soft);
 }
 
 .day-header h6 {
-  color: #212529;
+  color: var(--text);
 }
 
 .day-number-badge {
-  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: white;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
@@ -226,7 +226,7 @@
 }
 
 .activity-time.morning { color: #fd7e14; }
-.activity-time.afternoon { color: #0d6efd; }
+.activity-time.afternoon { color: var(--primary); }
 .activity-time.evening { color: #6f42c1; }
 
 .activity-text {
@@ -239,16 +239,16 @@
 .day-notes {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: #fff3cd;
+  background: var(--accent-soft);
   border-radius: 6px;
   font-size: 0.8rem;
-  border-left: 3px solid #ffc107;
+  border-left: 3px solid var(--accent);
 }
 
 .day-cost {
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid #f1f3f5;
+  border-top: 1px solid var(--surface-soft);
   font-weight: 600;
   color: #198754;
   font-size: 0.875rem;
@@ -259,7 +259,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #f1f3f5;
+  border-bottom: 1px solid var(--surface-soft);
 }
 
 .suggestion-item:last-child {
@@ -268,7 +268,7 @@
 
 .suggestion-category {
   background: #e7f1ff;
-  color: #0d6efd;
+  color: var(--primary);
   padding: 0.125rem 0.5rem;
   border-radius: 4px;
   font-size: 0.7rem;
@@ -298,13 +298,13 @@
 }
 
 .recent-itinerary-item:hover {
-  background: #f8f9fa;
-  border-color: #e9ecef;
+  background: var(--surface-soft);
+  border-color: var(--surface-soft);
 }
 
 .recent-itinerary-destination {
   font-weight: 600;
-  color: #212529;
+  color: var(--text);
   margin-bottom: 0.25rem;
 }
 
@@ -312,17 +312,17 @@
   display: flex;
   gap: 1rem;
   font-size: 0.75rem;
-  color: #6c757d;
+  color: var(--text-muted);
 }
 
 .recent-itinerary-cost {
   font-weight: 700;
-  color: #0d6efd;
+  color: var(--primary);
   font-size: 1rem;
 }
 
 .itinerary-card {
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--surface-soft);
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 1rem;
@@ -330,12 +330,12 @@
 }
 
 .itinerary-card:hover {
-  border-color: #0d6efd;
+  border-color: var(--primary);
   box-shadow: 0 4px 16px rgba(13, 110, 253, 0.1);
 }
 
 .itinerary-card-header {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, var(--surface-soft) 0%, var(--surface-soft) 100%);
   padding: 1rem 1.25rem;
   border-bottom: 1px solid #dee2e6;
   display: flex;
@@ -344,7 +344,7 @@
 }
 
 .itinerary-category-badge {
-  background: #0d6efd;
+  background: var(--primary);
   color: white;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
@@ -365,20 +365,20 @@
 .itinerary-stat-value {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #212529;
+  color: var(--text);
 }
 
 .itinerary-stat-label {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #6c757d;
+  color: var(--text-muted);
 }
 
 .detail-stat {
   text-align: center;
   padding: 1rem;
-  background: #f8f9fa;
+  background: var(--surface-soft);
   border-radius: 8px;
 }
 
@@ -391,7 +391,7 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #6c757d;
+  color: var(--text-muted);
 }
 
 .day-cost-badge {

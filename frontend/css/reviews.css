@@ -13,24 +13,24 @@
 }
 
 .review-stars {
-  color: #ffc107;
+  color: var(--accent);
   font-size: 1.1rem;
 }
 
 .rating-input .stars i {
   font-size: 1.4rem;
   cursor: pointer;
-  color: #ced4da;
+  color: var(--border);
   transition: color 0.2s ease;
 }
 
 .rating-input .stars i.fas {
-  color: #ffc107;
+  color: var(--accent);
 }
 
 .rating-input .stars i:hover,
 .rating-input .stars i:hover ~ i {
-  color: #ffc107;
+  color: var(--accent);
 }
 
 .rating-input .stars i.far {
@@ -38,7 +38,7 @@
 }
 
 .rating-input .stars i.far:hover {
-  color: #ffc107;
+  color: var(--accent);
 }
 
 .destination-detail-image {
@@ -56,7 +56,7 @@
 }
 
 .review-summary-card {
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  background: var(--surface-soft);
 }
 
 @media (max-width: 768px) {

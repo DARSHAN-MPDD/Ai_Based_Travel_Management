@@ -3,13 +3,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const user = Auth.getCurrentUser();
   if (user) {
-    document.getElementById('userName').textContent = user.name || 'User';
+    const el = document.getElementById('tmUserName');
+    if (el) el.textContent = user.name || 'User';
   }
 
-  document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+  document.getElementById('tmLogoutBtn')?.addEventListener('click', (e) => {
     e.preventDefault();
     Auth.logout();
   });
+
+  const tmUserBtn = document.getElementById('tmUserBtn');
+  const tmUserDropdown = document.getElementById('tmUserDropdown');
+  if (tmUserBtn && tmUserDropdown) {
+    tmUserBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      tmUserDropdown.classList.toggle('show');
+    });
+    document.addEventListener('click', () => {
+      tmUserDropdown.classList.remove('show');
+    });
+  }
+
+  const navToggle = document.getElementById('tmNavToggle');
+  const navLinks = document.getElementById('tmNavLinks');
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('tm-nav-links-open');
+    });
+    navLinks.querySelectorAll('.tm-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('tm-nav-links-open');
+      });
+    });
+  }
 
   document.getElementById('start_date').min = new Date().toISOString().split('T')[0];
 
@@ -347,21 +373,26 @@ async function loadRecentItineraries() {
       return;
     }
 
-    container.innerHTML = response.data.map(itinerary => `
-      <a href="itinerary.html?id=${itinerary.itinerary_id}" class="recent-itinerary-item text-decoration-none">
-        <div class="recent-itinerary-info">
-          <div class="recent-itinerary-destination">${itinerary.destination.name}</div>
-          <div class="recent-itinerary-meta">
-            <span>${itinerary.duration} days</span>
-            <span>${itinerary.travelers} traveler${itinerary.travelers > 1 ? 's' : ''}</span>
-            <span>${formatCurrency(itinerary.budget)}</span>
+    container.innerHTML = response.data.map(itinerary => {
+      const destName = itinerary.destination.name || '';
+      const localImg = DestinationImages ? DestinationImages.getPrimaryImage(destName) : '';
+      return `
+        <a href="itinerary.html?id=${itinerary.itinerary_id}" class="recent-itinerary-item text-decoration-none">
+          <div class="recent-itinerary-info">
+            ${localImg ? `<img src="${localImg}" alt="${destName}" class="me-2 align-middle" style="width:36px;height:36px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none';">` : ''}
+            <div class="recent-itinerary-destination">${itinerary.destination.name}</div>
+            <div class="recent-itinerary-meta">
+              <span>${itinerary.duration} days</span>
+              <span>${itinerary.travelers} traveler${itinerary.travelers > 1 ? 's' : ''}</span>
+              <span>${formatCurrency(itinerary.budget)}</span>
+            </div>
           </div>
-        </div>
-        <div class="recent-itinerary-cost">
-          ${formatCurrency(itinerary.total_estimated_cost)}
-        </div>
-      </a>
-    `).join('');
+          <div class="recent-itinerary-cost">
+            ${formatCurrency(itinerary.total_estimated_cost)}
+          </div>
+        </a>
+      `;
+    }).join('');
   } catch (error) {
     console.error('Failed to load recent itineraries:', error);
     document.getElementById('recentItineraries').innerHTML = `

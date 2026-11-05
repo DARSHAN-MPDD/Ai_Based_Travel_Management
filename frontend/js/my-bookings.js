@@ -5,13 +5,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const user = Auth.getCurrentUser();
   if (user) {
-    document.getElementById('userName').textContent = user.name || 'User';
+    const el = document.getElementById('tmUserName');
+    if (el) el.textContent = user.name || 'User';
   }
 
-  document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+  document.getElementById('tmLogoutBtn')?.addEventListener('click', (e) => {
     e.preventDefault();
     Auth.logout();
   });
+
+  const tmUserBtn = document.getElementById('tmUserBtn');
+  const tmUserDropdown = document.getElementById('tmUserDropdown');
+  if (tmUserBtn && tmUserDropdown) {
+    tmUserBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      tmUserDropdown.classList.toggle('show');
+    });
+    document.addEventListener('click', () => {
+      tmUserDropdown.classList.remove('show');
+    });
+  }
+
+  const navToggle = document.getElementById('tmNavToggle');
+  const navLinks = document.getElementById('tmNavLinks');
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('tm-nav-links-open');
+    });
+    navLinks.querySelectorAll('.tm-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('tm-nav-links-open');
+      });
+    });
+  }
 
   await loadBookings(1);
 });
@@ -47,15 +73,22 @@ async function loadBookings(page = 1) {
       const statusIcon = getStatusIcon(booking.status);
       const isRefunded = booking.payment_status === 'refunded';
 
+      // Use the local destination photo for the booking thumbnail so every
+      // booking for a place shows the same image set as the Packages page.
+      const destName = booking.destination_name || 'Destination';
+      const localImg = DestinationImages ? DestinationImages.getPrimaryImage(destName) : '';
+      const thumbSrc = localImg || 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=80&q=80';
+      const thumbFallback = localImg
+        ? 'https://images.unsplash.com/photo-1526525108745-5f7e7a9c1f7e?w=80&q=80'
+        : 'https://images.unsplash.com/photo-1526525108745-5f7e7a9c1f7e?w=80&q=80';
+
       return `
         <div class="card booking-card mb-3" data-booking-id="${booking.id}" data-booking-ref="${booking.booking_id}" data-status="${booking.status}">
           <div class="card-body">
             <div class="row g-3 align-items-center">
               <div class="col-md-6">
                 <div class="d-flex align-items-center gap-3">
-                  <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="fas fa-map-marker-alt fa-lg text-primary"></i>
-                  </div>
+                  <img src="${thumbSrc}" alt="${escapeHtml(booking.destination_name || 'Destination')}" class="booking-thumb" onerror="this.onerror=null;this.src='${thumbFallback}';this.onerror=function(){this.style.display='none';}">
                   <div>
                     <h6 class="mb-1 fw-semibold">${escapeHtml(booking.destination_name || 'Unknown')}</h6>
                     <p class="text-muted small mb-0">${escapeHtml(booking.package_name || '')} • ${booking.duration_days || ''} days</p>

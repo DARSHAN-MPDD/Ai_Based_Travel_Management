@@ -1,4 +1,4 @@
-const API_BASE = '/api';
+window.API_BASE = '/api';
 
 async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem('token');
@@ -15,13 +15,30 @@ async function apiRequest(endpoint, options = {}) {
     ...options,
     headers
   });
-  
-  const data = await response.json();
-  
+
+  let data = {};
+  try {
+    data = await response.json();
+  } catch (_) {
+    data = {};
+  }
+
   if (!response.ok) {
+    if (response.status === 401 && token) {
+      const msg = (data && data.message) || '';
+      if (/invalid token|token expired|access token required|token verification failed/i.test(msg)) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        const page = (location.pathname.split('/').pop() || '').toLowerCase();
+        if (page !== 'login.html' && page !== 'register.html') {
+          window.location.href = 'login.html';
+          return new Promise(() => {});
+        }
+      }
+    }
     throw new Error(data.message || 'Request failed');
   }
-  
+
   return data;
 }
 

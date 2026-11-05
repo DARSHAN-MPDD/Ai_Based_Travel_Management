@@ -3,13 +3,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const user = Auth.getCurrentUser();
   if (user) {
-    document.getElementById('userName').textContent = user.name || 'User';
+    const el = document.getElementById('tmUserName');
+    if (el) el.textContent = user.name || 'User';
   }
 
-  document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+  document.getElementById('tmLogoutBtn')?.addEventListener('click', (e) => {
     e.preventDefault();
     Auth.logout();
   });
+
+  const tmUserBtn = document.getElementById('tmUserBtn');
+  const tmUserDropdown = document.getElementById('tmUserDropdown');
+  if (tmUserBtn && tmUserDropdown) {
+    tmUserBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      tmUserDropdown.classList.toggle('show');
+    });
+    document.addEventListener('click', () => {
+      tmUserDropdown.classList.remove('show');
+    });
+  }
+
+  const navToggle = document.getElementById('tmNavToggle');
+  const navLinks = document.getElementById('tmNavLinks');
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('tm-nav-links-open');
+    });
+    navLinks.querySelectorAll('.tm-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('tm-nav-links-open');
+      });
+    });
+  }
 
   const urlParams = new URLSearchParams(window.location.search);
   const itineraryId = urlParams.get('id');
@@ -44,54 +70,59 @@ async function loadItineraries(page = 1) {
     }
 
     itinerariesList.style.display = 'block';
-    itinerariesList.innerHTML = response.data.map(itinerary => `
-      <div class="itinerary-card" data-id="${itinerary.itinerary_id}">
-        <div class="itinerary-card-header">
-          <div class="itinerary-destination">
-            <i class="fas fa-map-marker-alt me-1 text-primary"></i>
-            <strong>${itinerary.destination.name}</strong>
-            <span class="text-muted ms-2">${itinerary.destination.location}</span>
+    itinerariesList.innerHTML = response.data.map(itinerary => {
+      const destName = itinerary.destination.name || '';
+      const localImg = DestinationImages ? DestinationImages.getPrimaryImage(destName) : '';
+      return `
+        <div class="itinerary-card" data-id="${itinerary.itinerary_id}">
+          <div class="itinerary-card-header">
+            <div class="itinerary-destination">
+              ${localImg ? `<img src="${localImg}" alt="${escapeHtml(destName)}" class="me-2 align-middle" style="width:40px;height:40px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none';">` : ''}
+              <i class="fas fa-map-marker-alt me-1 text-primary"></i>
+              <strong>${itinerary.destination.name}</strong>
+              <span class="text-muted ms-2">${itinerary.destination.location}</span>
+            </div>
+            <div class="itinerary-category-badge">${itinerary.destination.category}</div>
           </div>
-          <div class="itinerary-category-badge">${itinerary.destination.category}</div>
+          <div class="itinerary-card-body">
+            <div class="row g-2 mb-3">
+              <div class="col-6 col-md-3">
+                <div class="itinerary-stat">
+                  <div class="itinerary-stat-value">${itinerary.duration}</div>
+                  <div class="itinerary-stat-label">Days</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="itinerary-stat">
+                  <div class="itinerary-stat-value">${itinerary.travelers}</div>
+                  <div class="itinerary-stat-label">Travelers</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="itinerary-stat">
+                  <div class="itinerary-stat-value">${formatCurrency(itinerary.budget)}</div>
+                  <div class="itinerary-stat-label">Budget</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="itinerary-stat">
+                  <div class="itinerary-stat-value">${formatCurrency(itinerary.total_estimated_cost)}</div>
+                  <div class="itinerary-stat-label">Est. Cost</div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">Created: ${formatDate(itinerary.created_at)}</small>
+              <div>
+                <button class="btn btn-sm btn-outline-primary view-itinerary-btn" data-id="${itinerary.itinerary_id}">
+                  <i class="fas fa-eye me-1"></i>View Details
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="itinerary-card-body">
-          <div class="row g-2 mb-3">
-            <div class="col-6 col-md-3">
-              <div class="itinerary-stat">
-                <div class="itinerary-stat-value">${itinerary.duration}</div>
-                <div class="itinerary-stat-label">Days</div>
-              </div>
-            </div>
-            <div class="col-6 col-md-3">
-              <div class="itinerary-stat">
-                <div class="itinerary-stat-value">${itinerary.travelers}</div>
-                <div class="itinerary-stat-label">Travelers</div>
-              </div>
-            </div>
-            <div class="col-6 col-md-3">
-              <div class="itinerary-stat">
-                <div class="itinerary-stat-value">${formatCurrency(itinerary.budget)}</div>
-                <div class="itinerary-stat-label">Budget</div>
-              </div>
-            </div>
-            <div class="col-6 col-md-3">
-              <div class="itinerary-stat">
-                <div class="itinerary-stat-value">${formatCurrency(itinerary.total_estimated_cost)}</div>
-                <div class="itinerary-stat-label">Est. Cost</div>
-              </div>
-            </div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center">
-            <small class="text-muted">Created: ${formatDate(itinerary.created_at)}</small>
-            <div>
-              <button class="btn btn-sm btn-outline-primary view-itinerary-btn" data-id="${itinerary.itinerary_id}">
-                <i class="fas fa-eye me-1"></i>View Details
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     document.querySelectorAll('.view-itinerary-btn').forEach(btn => {
       btn.addEventListener('click', () => loadItineraryDetail(btn.dataset.id));
@@ -167,9 +198,27 @@ async function loadItineraryDetail(itineraryId) {
         ${data.destination.name} - ${data.duration} Days
       `;
 
+      const destName = data.destination.name || '';
+      const localImg = DestinationImages ? DestinationImages.getPrimaryImage(destName) : '';
+      const localGallery = DestinationImages ? DestinationImages.getGalleryImages(destName) : [];
+
       modalBody.innerHTML = `
         <div class="itinerary-detail">
           <div class="row g-3 mb-4">
+            ${localImg ? `
+            <div class="col-12">
+              <img src="${localImg}" alt="${escapeHtml(destName)}" class="img-fluid rounded shadow-sm w-100" style="height: 240px; object-fit: cover;" onerror="this.style.display='none';">
+            </div>` : ''}
+            ${localGallery.length ? `
+            <div class="col-12">
+              <div class="row g-2">
+                ${localGallery.map((url, i) => `
+                  <div class="col-6 col-md-4">
+                    <img src="${url}" alt="${escapeHtml(destName)} gallery ${i + 1}" class="img-fluid rounded shadow-sm w-100" style="height: 120px; object-fit: cover;" onerror="this.style.display='none';">
+                  </div>
+                `).join('')}
+              </div>
+            </div>` : ''}
             <div class="col-md-3">
               <div class="detail-stat">
                 <div class="detail-stat-value">${data.duration}</div>
@@ -321,6 +370,16 @@ function formatCurrency(amount) {
 function formatDate(dateString) {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function escapeHtml(text) {
+  if (text === null || text === undefined) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function formatBudgetStatus(status) {

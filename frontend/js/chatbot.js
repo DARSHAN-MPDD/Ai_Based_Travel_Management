@@ -1,5 +1,3 @@
-const API_BASE = '/api';
-
 function escapeHtml(text) {
   if (text === null || text === undefined) return '';
   const div = document.createElement('div');
@@ -34,11 +32,36 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('chatForm').addEventListener('submit', handleSendMessage);
   document.getElementById('clearChatBtn').addEventListener('click', clearChat);
 
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', function(e) {
+  const tmLogoutBtn = document.getElementById('tmLogoutBtn');
+  if (tmLogoutBtn) {
+    tmLogoutBtn.addEventListener('click', function(e) {
       e.preventDefault();
       Auth.logout();
+    });
+  }
+
+  const tmUserBtn = document.getElementById('tmUserBtn');
+  const tmUserDropdown = document.getElementById('tmUserDropdown');
+  if (tmUserBtn && tmUserDropdown) {
+    tmUserBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      tmUserDropdown.classList.toggle('show');
+    });
+    document.addEventListener('click', () => {
+      tmUserDropdown.classList.remove('show');
+    });
+  }
+
+  const navToggle = document.getElementById('tmNavToggle');
+  const navLinks = document.getElementById('tmNavLinks');
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('tm-nav-links-open');
+    });
+    navLinks.querySelectorAll('.tm-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('tm-nav-links-open');
+      });
     });
   }
 });
@@ -46,16 +69,28 @@ document.addEventListener('DOMContentLoaded', function() {
 function updateAuthUI() {
   const token = localStorage.getItem('token');
   const user = Auth.getCurrentUser();
+  const navLogin = document.getElementById('navLogin');
+  const navRegister = document.getElementById('navRegister');
+  const tmNavLoginItem = document.getElementById('tmNavLoginItem');
+  const tmNavRegisterItem = document.getElementById('tmNavRegisterItem');
+  const tmUserMenu = document.getElementById('tmUserMenu');
+  const tmUserName = document.getElementById('tmUserName');
 
   if (token) {
     if (user) {
-      document.getElementById('userName').textContent = user.name || 'User';
+      if (tmUserName) tmUserName.textContent = user.name || 'User';
     }
-    document.getElementById('userMenu').style.display = 'block';
-    document.getElementById('authButtons').style.display = 'none';
+    if (navLogin) navLogin.style.display = 'none';
+    if (navRegister) navRegister.style.display = 'none';
+    if (tmNavLoginItem) tmNavLoginItem.style.display = 'none';
+    if (tmNavRegisterItem) tmNavRegisterItem.style.display = 'none';
+    if (tmUserMenu) tmUserMenu.style.display = 'block';
   } else {
-    document.getElementById('userMenu').style.display = 'none';
-    document.getElementById('authButtons').style.display = 'block';
+    if (navLogin) navLogin.style.display = 'inline-block';
+    if (navRegister) navRegister.style.display = 'inline-block';
+    if (tmNavLoginItem) tmNavLoginItem.style.display = 'flex';
+    if (tmNavRegisterItem) tmNavRegisterItem.style.display = 'flex';
+    if (tmUserMenu) tmUserMenu.style.display = 'none';
   }
 }
 
@@ -185,8 +220,12 @@ function renderDataCards(data, role) {
 
   if (data.destination) {
     const d = data.destination;
-    const image = d.image_url
-      ? `<img src="${escapeHtml(d.image_url)}" alt="${escapeHtml(d.name)}" class="destination-card-img">`
+    // Prefer the local destination photo; fall back to the DB image_url
+    // and then to a placeholder icon if both fail to load.
+    const localImg = DestinationImages ? DestinationImages.getPrimaryImage(d.name) : '';
+    const imgSrc = localImg || d.image_url;
+    const image = imgSrc
+      ? `<img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(d.name)}" class="destination-card-img" onerror="this.onerror=null;this.src='${escapeHtml(d.image_url || 'https://images.unsplash.com/photo-1526525108745-5f7e7a9c1f7e?w=400&q=80')}';this.onerror=function(){this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-image fa-2x text-muted\\'></i>';}">`
       : `<div class="destination-card-img-placeholder d-flex align-items-center justify-content-center"><i class="fas fa-image fa-2x text-muted"></i></div>`;
     html += `
       <div class="card destination-card mb-2">
@@ -217,14 +256,25 @@ function renderDataCards(data, role) {
         ? `<div class="small text-muted">${item.duration_days || '?'} days</div>`
         : `<div class="small text-muted">${escapeHtml(item.location || '')}</div>`;
 
+      // Use the local destination photo for every card so the chatbot shows
+      // the same image set used across the rest of the site.
+      const destName = item.destination_name || item.name || '';
+      const localImg = DestinationImages ? DestinationImages.getPrimaryImage(destName) : '';
+      const thumb = localImg
+        ? `<img src="${escapeHtml(localImg)}" alt="${title}" class="me-2 align-middle" style="width:48px;height:48px;object-fit:cover;border-radius:4px;" onerror="this.style.display='none';">`
+        : '';
+
       html += `
         <div class="col-12">
           <div class="card h-100 shadow-sm">
             <div class="card-body p-2">
               <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="mb-0">${title}</h6>
-                  <p class="text-muted small mb-0">${escapeHtml(subtitle)}</p>
+                <div class="d-flex align-items-center">
+                  ${thumb}
+                  <div>
+                    <h6 class="mb-0">${title}</h6>
+                    <p class="text-muted small mb-0">${escapeHtml(subtitle)}</p>
+                  </div>
                 </div>
                 ${badge}
               </div>

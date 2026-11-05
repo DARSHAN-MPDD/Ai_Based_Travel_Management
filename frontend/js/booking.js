@@ -3,13 +3,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const user = Auth.getCurrentUser();
   if (user) {
-    document.getElementById('userName').textContent = user.name || 'User';
+    const el = document.getElementById('tmUserName');
+    if (el) el.textContent = user.name || 'User';
   }
 
-  document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+  document.getElementById('tmLogoutBtn')?.addEventListener('click', (e) => {
     e.preventDefault();
     Auth.logout();
   });
+
+  const tmUserBtn = document.getElementById('tmUserBtn');
+  const tmUserDropdown = document.getElementById('tmUserDropdown');
+  if (tmUserBtn && tmUserDropdown) {
+    tmUserBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      tmUserDropdown.classList.toggle('show');
+    });
+    document.addEventListener('click', () => {
+      tmUserDropdown.classList.remove('show');
+    });
+  }
+
+  const navToggle = document.getElementById('tmNavToggle');
+  const navLinks = document.getElementById('tmNavLinks');
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('tm-nav-links-open');
+    });
+    navLinks.querySelectorAll('.tm-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('tm-nav-links-open');
+      });
+    });
+  }
 
   document.getElementById('travel_date').min = new Date().toISOString().split('T')[0];
 
@@ -21,6 +47,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 let selectedPackage = null;
+
+// Render a package thumbnail using the shared destination image mapping.
+// Falls back to the DB image_url, then to a stable stock photo on error.
+function renderPackageImage(pkg) {
+  const destName = pkg.destination_name || 'destination';
+  const chain = DestinationImages ? DestinationImages.getImageChain(destName) : [];
+  const primary = pkg.image_url || (chain.length ? chain[0] : 'https://images.unsplash.com/photo-1526525108745-5f7e7a9c1f7e?w=300&q=80');
+  const fallbacks = chain.filter(url => url !== primary);
+  const fb1 = fallbacks[0] || 'https://images.unsplash.com/photo-1526525108745-5f7e7a9c1f7e?w=300&q=80';
+  const fb2 = fallbacks[1] || fb1;
+
+  return `<img src="${primary}" alt="${escapeHtml(pkg.name)}" class="img-fluid rounded mt-2" style="max-height: 100px; object-fit: cover;" onerror="this.onerror=null;this.src='${fb1}';this.onerror=function(){this.src='${fb2}';}">`;
+}
 
 async function loadPackages() {
   const loading = document.getElementById('packagesLoading');
@@ -55,7 +94,7 @@ async function loadPackages() {
           <span><i class="fas fa-clock me-1"></i>${pkg.duration_days} days</span>
           <span><i class="fas fa-users me-1"></i>Max ${pkg.max_travelers}</span>
         </div>
-        ${pkg.image_url ? `<img src="${pkg.image_url}" alt="${escapeHtml(pkg.name)}" class="img-fluid rounded mt-2" style="max-height: 100px; object-fit: cover;">` : ''}
+        ${renderPackageImage(pkg)}
       </div>
     `).join('');
 

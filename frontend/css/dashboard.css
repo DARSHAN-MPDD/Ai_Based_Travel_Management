@@ -1,58 +1,93 @@
 .stat-card {
   border-radius: 16px;
-  border: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
   transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-sm);
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.08) !important;
+  box-shadow: var(--shadow);
+  border-color: var(--primary);
+}
+
+.stat-body {
+  padding: 1.25rem 1.25rem;
+}
+
+.stat-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  color: var(--text);
+  font-size: 1.75rem;
 }
 
 .stat-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.25rem;
 }
 
-.bg-primary-light { background: rgba(37, 99, 235, 0.1); }
-.bg-success-light { background: rgba(16, 185, 129, 0.1); }
-.bg-warning-light { background: rgba(245, 158, 11, 0.1); }
-.bg-info-light { background: rgba(6, 182, 212, 0.1); }
+.stat-icon-trips { background: var(--primary-soft); color: var(--primary); }
+.stat-icon-destinations { background: var(--secondary-soft); color: var(--secondary-dark); }
+.stat-icon-recommendations { background: var(--accent-soft); color: var(--accent-dark); }
+.stat-icon-itineraries { background: var(--primary-soft); color: var(--primary-dark); }
 
 .action-card {
   display: block;
   padding: 1.5rem 1rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
+  border: 2px solid var(--border);
+  border-radius: 14px;
   text-align: center;
-  color: var(--dark);
+  color: var(--text);
+  background: var(--surface);
   transition: all 0.2s;
-  background: white;
+  text-decoration: none;
+  height: 100%;
 }
 
 .action-card:hover {
   border-color: var(--primary);
   color: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-sm);
   text-decoration: none;
 }
 
-.action-card i {
-  transition: transform 0.2s;
+.action-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 1.35rem;
 }
 
-.action-card:hover i {
-  transform: scale(1.1);
-}
+.action-icon-planner { background: var(--secondary-soft); color: var(--secondary-dark); }
+.action-icon-destinations { background: var(--primary-soft); color: var(--primary); }
+.action-icon-packages { background: var(--secondary-soft); color: var(--secondary-dark); }
+.action-icon-bookings { background: var(--primary-soft); color: var(--primary); }
+.action-icon-chatbot { background: var(--accent-soft); color: var(--accent-dark); }
+.action-icon-profile { background: var(--secondary-soft); color: var(--secondary-dark); }
 
 .action-card h6 {
   font-weight: 600;
   margin-bottom: 0.25rem;
+  color: var(--text);
 }
 
 .activity-item {
@@ -60,7 +95,7 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem 0;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border);
 }
 
 .activity-item:last-child {
@@ -74,7 +109,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f1f5f9;
+  background: var(--surface-soft);
   color: var(--primary);
 }
 
@@ -85,9 +120,153 @@
 .activity-title {
   font-weight: 500;
   margin-bottom: 0.25rem;
+  color: var(--text);
 }
 
 .activity-time {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: var(--text-muted);
+}
+
+.dash .container {
+  padding-top: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+/* Tighter welcome header */
+.dashboard .row.mb-4.align-items-center .col-lg-8 h1 {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  letter-spacing: -0.01em;
+}
+
+/* Compact stat cards */
+.stat-card .stat-body {
+  padding: 1rem 1.15rem;
+}
+.stat-value {
+  font-size: 1.5rem;
+}
+.stat-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 1.1rem;
+}
+
+/* Quick Actions header */
+.card-header .badge {
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+/* Recent Activity empty-state illustration */
+.recent-empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 1.7rem;
+}
+
+/* User dropdown (dashboard header) */
+.tm-user-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tm-user-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.tm-user-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 190px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 6px 0;
+  list-style: none;
+  margin: 0;
+  z-index: 1050;
+  display: none;
+}
+
+.tm-user-dropdown.show {
+  display: block;
+}
+
+.tm-user-dropdown-item {
+  display: block;
+  padding: 8px 16px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.tm-user-dropdown-item:hover {
+  background: var(--secondary-soft);
+  color: var(--primary);
+}
+
+.tm-user-dropdown-item.text-danger {
+  color: var(--danger);
+}
+
+.tm-user-divider {
+  border-color: var(--border);
+  margin: 6px 0;
+}
+
+@media (max-width: 992px) {
+  .stat-card {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard .container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .row.mb-4.align-items-center > .col-lg-4.text-lg-end {
+    text-align: left;
+    margin-top: 1rem;
+  }
+
+  .row.mb-4.align-items-center > .col-lg-4.text-lg-end .btn-primary {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .stat-value {
+    font-size: 1.4rem;
+  }
+  .action-card {
+    padding: 1.25rem 0.75rem;
+  }
 }
