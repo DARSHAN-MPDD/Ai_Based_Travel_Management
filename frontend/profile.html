@@ -116,6 +116,144 @@
           </div>
         </div>
       </div>
+
+      <div class="row g-4 mt-1" id="travelPreferencesSection">
+        <div class="col-12">
+          <div class="card border-0 shadow-sm" id="travel-preferences">
+            <div class="card-body p-4">
+              <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                <div>
+                  <h5 class="card-title mb-1"><i class="fas fa-sliders-h me-2 text-primary"></i>Travel Preferences</h5>
+                  <p class="text-muted small mb-0">Save your preferences to get personalized AI recommendations.</p>
+                </div>
+                <span class="badge bg-secondary" id="prefStatusBadge">Not saved</span>
+              </div>
+
+              <div id="prefLoading" class="text-center py-3 d-none" aria-live="polite">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                <span class="ms-2 text-muted small">Loading preferences...</span>
+              </div>
+              <div id="prefSuccess" class="alert alert-success d-none" role="alert"></div>
+              <div id="prefError" class="alert alert-danger d-none" role="alert"></div>
+
+              <form id="preferencesForm" novalidate>
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">A. Preferred Travel Types <span class="text-muted fw-normal">(multiple)</span></label>
+                    <div class="row g-1" id="prefTravelTypes">
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_travel_types" value="Adventure" id="ptt1"><label class="form-check-label" for="ptt1">Adventure</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_travel_types" value="Nature" id="ptt2"><label class="form-check-label" for="ptt2">Nature</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_travel_types" value="Beach" id="ptt3"><label class="form-check-label" for="ptt3">Beach</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_travel_types" value="Historical Places" id="ptt4"><label class="form-check-label" for="ptt4">Historical Places</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_travel_types" value="Cultural Tourism" id="ptt5"><label class="form-check-label" for="ptt5">Cultural Tourism</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_travel_types" value="Religious Tourism" id="ptt6"><label class="form-check-label" for="ptt6">Religious Tourism</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_travel_types" value="Wildlife" id="ptt7"><label class="form-check-label" for="ptt7">Wildlife</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_travel_types" value="Hill Stations" id="ptt8"><label class="form-check-label" for="ptt8">Hill Stations</label></div></div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">B. Preferred Destinations <span class="text-muted fw-normal">(multiple)</span></label>
+                    <div class="row g-1" id="prefDestinations">
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_destinations" value="Kerala" id="pd1"><label class="form-check-label" for="pd1">Kerala</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_destinations" value="Karnataka" id="pd2"><label class="form-check-label" for="pd2">Karnataka</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_destinations" value="Tamil Nadu" id="pd3"><label class="form-check-label" for="pd3">Tamil Nadu</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_destinations" value="Goa" id="pd4"><label class="form-check-label" for="pd4">Goa</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_destinations" value="Rajasthan" id="pd5"><label class="form-check-label" for="pd5">Rajasthan</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_destinations" value="Himachal Pradesh" id="pd6"><label class="form-check-label" for="pd6">Himachal Pradesh</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_destinations" value="Other" id="pd7"><label class="form-check-label" for="pd7">Other</label></div></div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold" for="budget_preference">C. Budget Preference</label>
+                    <select class="form-select" id="budget_preference" name="budget_preference">
+                      <option value="">Select budget range</option>
+                      <option value="Budget (Below ₹5,000)">Budget (Below ₹5,000)</option>
+                      <option value="Moderate (₹5,000–₹15,000)">Moderate (₹5,000–₹15,000)</option>
+                      <option value="Premium (₹15,000–₹30,000)">Premium (₹15,000–₹30,000)</option>
+                      <option value="Luxury (Above ₹30,000)">Luxury (Above ₹30,000)</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold" for="accommodation_preference">D. Accommodation Preference</label>
+                    <select class="form-select" id="accommodation_preference" name="accommodation_preference">
+                      <option value="">Select accommodation</option>
+                      <option value="Budget Hotels">Budget Hotels</option>
+                      <option value="Standard Hotels">Standard Hotels</option>
+                      <option value="Luxury Hotels">Luxury Hotels</option>
+                      <option value="Resorts">Resorts</option>
+                      <option value="Homestays">Homestays</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold" for="travel_style">E. Travel Style</label>
+                    <select class="form-select" id="travel_style" name="travel_style">
+                      <option value="">Select travel style</option>
+                      <option value="Solo">Solo</option>
+                      <option value="Family">Family</option>
+                      <option value="Friends">Friends</option>
+                      <option value="Couple">Couple</option>
+                      <option value="Group">Group</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">F. Preferred Activities <span class="text-muted fw-normal">(multiple)</span></label>
+                    <div class="row g-1" id="prefActivities">
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_activities" value="Trekking" id="pa1"><label class="form-check-label" for="pa1">Trekking</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_activities" value="Photography" id="pa2"><label class="form-check-label" for="pa2">Photography</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_activities" value="Sightseeing" id="pa3"><label class="form-check-label" for="pa3">Sightseeing</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_activities" value="Shopping" id="pa4"><label class="form-check-label" for="pa4">Shopping</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_activities" value="Food Exploration" id="pa5"><label class="form-check-label" for="pa5">Food Exploration</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_activities" value="Camping" id="pa6"><label class="form-check-label" for="pa6">Camping</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_activities" value="Boating" id="pa7"><label class="form-check-label" for="pa7">Boating</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="preferred_activities" value="Wildlife Safari" id="pa8"><label class="form-check-label" for="pa8">Wildlife Safari</label></div></div>
+                    </div>
+                  </div>
+
+                  <div class="col-12"><hr class="my-1"><div class="fw-semibold mb-1">G. Additional Preferences</div></div>
+
+                  <div class="col-md-4">
+                    <label class="form-label" for="preferred_trip_duration">Preferred trip duration</label>
+                    <input type="text" class="form-control" id="preferred_trip_duration" name="preferred_trip_duration" placeholder="e.g., 3-5 days">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label" for="preferred_travel_pace">Preferred travel pace</label>
+                    <select class="form-select" id="preferred_travel_pace" name="preferred_travel_pace">
+                      <option value="">Select pace</option>
+                      <option value="Relaxed">Relaxed</option>
+                      <option value="Balanced">Balanced</option>
+                      <option value="Fast-paced">Fast-paced</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label" for="dietary_preference">Dietary preference</label>
+                    <select class="form-select" id="dietary_preference" name="dietary_preference">
+                      <option value="">Select dietary preference</option>
+                      <option value="Vegetarian">Vegetarian</option>
+                      <option value="Non-Vegetarian">Non-Vegetarian</option>
+                      <option value="No Preference">No Preference</option>
+                    </select>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label" for="additional_requirements">Additional travel requirements <span class="text-muted">(optional)</span></label>
+                    <textarea class="form-control" id="additional_requirements" name="additional_requirements" rows="3" maxlength="2000" placeholder="Any special requirements, accessibility needs, etc."></textarea>
+                  </div>
+
+                  <div class="col-12 d-flex flex-wrap gap-2 align-items-center">
+                    <button type="submit" class="btn btn-primary" id="prefSaveBtn"><i class="fas fa-save me-1"></i><span id="prefSaveBtnText">Save Preferences</span></button>
+                    <button type="button" class="btn btn-outline-secondary d-none" id="prefUpdateBtn"><i class="fas fa-sync-alt me-1"></i>Update Preferences</button>
+                    <a href="dashboard.html" class="btn btn-link ms-auto">Back to Dashboard</a>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -144,7 +282,7 @@
         </div>
       </div>
       <hr class="my-4">
-      <p class="text-center text-muted mb-0">&copy; 2024 TravelMind AI. College Mini Project.</p>
+      <p class="tm-footer-copy">&copy; 2026 TravelMind AI</p>
     </div>
   </footer>
 
@@ -238,6 +376,13 @@
         });
       }
 
+      const prefForm = document.getElementById('preferencesForm');
+      const prefUpdateBtn = document.getElementById('prefUpdateBtn');
+      if (prefForm) prefForm.addEventListener('submit', (e) => { e.preventDefault(); savePreferences('save'); });
+      if (prefUpdateBtn) prefUpdateBtn.addEventListener('click', () => savePreferences('update'));
+
+      window.addEventListener('hashchange', focusPreferencesSection);
+
       const navToggle = document.getElementById('tmNavToggle');
       const navLinks = document.getElementById('tmNavLinks');
       if (navToggle && navLinks) {
@@ -253,6 +398,8 @@
 
       if (!Auth.requireAuth()) return;
       loadProfile();
+      loadPreferences();
+      focusPreferencesSection();
     });
   </script>
 </body>

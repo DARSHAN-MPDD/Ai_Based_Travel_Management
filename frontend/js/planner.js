@@ -118,7 +118,7 @@ function setupFormHandlers() {
     document.getElementById('plannerForm').reset();
     document.getElementById('start_date').min = new Date().toISOString().split('T')[0];
     document.getElementById('resultContainer').style.display = 'none';
-    document.getElementById('errorContainer').style.display = 'none';
+    hideError();
     document.querySelectorAll('#interestsContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
   });
 }
@@ -153,7 +153,7 @@ async function generateItinerary() {
   generateBtn.disabled = true;
   generateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating...';
   loadingContainer.style.display = 'block';
-  errorContainer.style.display = 'none';
+  hideError();
   resultContainer.style.display = 'none';
 
   try {
@@ -167,17 +167,18 @@ async function generateItinerary() {
     generateBtn.innerHTML = '<i class="fas fa-magic me-2"></i>Generate Itinerary';
 
     if (response.success && response.data) {
+      hideError();
       displayItinerary(response.data);
       resultContainer.style.display = 'block';
       resultContainer.scrollIntoView({ behavior: 'smooth' });
     } else {
-      showError(response.message || 'Failed to generate itinerary');
+      showError(response && response.message ? response.message : 'Failed to generate itinerary');
     }
   } catch (error) {
     loadingContainer.style.display = 'none';
     generateBtn.disabled = false;
     generateBtn.innerHTML = '<i class="fas fa-magic me-2"></i>Generate Itinerary';
-    showError(error.message || 'Failed to generate itinerary. Please try again.');
+    showError((error && error.message) ? error.message : 'Failed to generate itinerary. Please try again.');
   }
 }
 
@@ -403,12 +404,22 @@ async function loadRecentItineraries() {
   }
 }
 
+function hideError() {
+  const errorContainer = document.getElementById('errorContainer');
+  const errorMessage = document.getElementById('errorMessage');
+  if (errorMessage) errorMessage.textContent = '';
+  if (errorContainer) errorContainer.classList.add('d-none');
+}
+
 function showError(message) {
   const errorContainer = document.getElementById('errorContainer');
   const errorMessage = document.getElementById('errorMessage');
-  errorMessage.textContent = message;
-  errorContainer.style.display = 'flex';
-  errorContainer.scrollIntoView({ behavior: 'smooth' });
+  const text = (message != null && String(message).trim()) ? String(message).trim() : 'An unexpected error occurred. Please try again.';
+  if (errorMessage) errorMessage.textContent = text;
+  if (errorContainer) {
+    errorContainer.classList.remove('d-none');
+    errorContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 }
 
 function formatCurrency(amount) {

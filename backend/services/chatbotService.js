@@ -424,14 +424,25 @@ async function getPersonalizedRecommendations(userId) {
 
 async function getSavedPreferences(userId) {
   const [prefs] = await pool.execute(
-    `SELECT budget_min, budget_max, preferred_duration, travel_type,
-            nature_interest, adventure_interest, beach_interest, history_interest,
-            culture_interest, food_interest, photography_interest, shopping_interest
-     FROM user_preferences WHERE user_id = ?`,
+    `SELECT * FROM user_preferences WHERE user_id = ?`,
     [userId]
   );
 
-  return prefs[0] || null;
+  if (!prefs[0]) return null;
+  const p = prefs[0];
+  const parseArr = (v) => {
+    if (!v) return [];
+    if (Array.isArray(v)) return v;
+    try { const x = JSON.parse(v); return Array.isArray(x) ? x : []; } catch { return []; }
+  };
+  return {
+    ...p,
+    budget_min: p.budget_min != null ? parseFloat(p.budget_min) : null,
+    budget_max: p.budget_max != null ? parseFloat(p.budget_max) : null,
+    preferred_travel_types: parseArr(p.preferred_travel_types),
+    preferred_destinations: parseArr(p.preferred_destinations),
+    preferred_activities: parseArr(p.preferred_activities)
+  };
 }
 
 async function getUserItineraries(userId) {
@@ -710,7 +721,7 @@ async function handleRecommendations(text, userId) {
       intent: 'recommendations',
       results: [],
       isClarificationNeeded: true,
-      clarification: 'I don\'t have your travel preferences yet. Please save your preferences first to get personalized recommendations. You can also ask about destinations by location or interest.'
+      clarification: 'I don\'t have your travel preferences yet. Please save your preferences first to get personalized recommendations. Open Profile → Travel Preferences (profile.html#travel-preferences). You can also ask about destinations by location or interest.'
     };
   }
 
@@ -885,9 +896,21 @@ function buildIntentReply(intent, result, text) {
 
     case 'preferences':
       if (prefsResult) {
-        reply = `Your saved preferences:\n• Budget: ₹${prefsResult.budget_min || 'N/A'} - ₹${prefsResult.budget_max || 'N/A'}\n• Preferred duration: ${prefsResult.preferred_duration || 'N/A'} days\n• Travel type: ${prefsResult.travel_type || 'N/A'}`;
+        const types = (prefsResult.preferred_travel_types || []).join(', ');
+        const dests = (prefsResult.preferred_destinations || []).join(', ');
+        const acts = (prefsResult.preferred_activities || []).join(', ');
+        const lines = [];
+        lines.push(`Budget: ${prefsResult.budget_preference || (prefsResult.budget_min != null || prefsResult.budget_max != null ? `₹${prefsResult.budget_min || 0}–₹${prefsResult.budget_max || 'N/A'}` : 'N/A')}`);
+        lines.push(`Duration: ${prefsResult.preferred_trip_duration || (prefsResult.preferred_duration ? prefsResult.preferred_duration + ' days' : 'N/A')}`);
+        if (types) lines.push(`Travel types: ${types}`);
+        if (dests) lines.push(`Destinations: ${dests}`);
+        if (acts) lines.push(`Activities: ${acts}`);
+        if (prefsResult.travel_style) lines.push(`Travel style: ${prefsResult.travel_style}`);
+        if (prefsResult.accommodation_preference) lines.push(`Accommodation: ${prefsResult.accommodation_preference}`);
+        if (prefsResult.preferred_travel_pace) lines.push(`Pace: ${prefsResult.preferred_travel_pace}`);
+        reply = `Your saved travel preferences:\n• ${lines.join('\n• ')}\n\nYou can update them in Profile → Travel Preferences (profile.html#travel-preferences).`;
       } else {
-        reply = 'You haven\'t saved any travel preferences yet. You can set them in your profile.';
+        reply = 'You haven\'t saved any travel preferences yet. Open Profile → Travel Preferences (profile.html#travel-preferences) to set them up.';
       }
       break;
 

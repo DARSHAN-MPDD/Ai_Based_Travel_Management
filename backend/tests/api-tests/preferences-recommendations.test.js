@@ -197,7 +197,7 @@ describe('Preferences API', () => {
       if (response.status === 200) {
         expect(response.body.success).toBe(true);
         expect(response.body.data.nature_interest).toBe(95);
-        expect(response.body.data.budget_max).toBe("25000.00");
+        expect(Number(response.body.data.budget_max)).toBe(25000);
       }
     });
   });

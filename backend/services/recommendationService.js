@@ -113,57 +113,30 @@ function calculateCategoryMatch(userTravelType, destCategory) {
 
 function generateReason(userPrefs, destination, scores) {
   const reasons = [];
-
-  if (scores.interestScore > 70) {
-    const highInterests = [];
-    PREFERENCE_SCORE_FIELDS.forEach((field, idx) => {
-      const userVal = userPrefs[field] || 0;
-      const destVal = destination[DESTINATION_SCORE_FIELDS[idx]] || 0;
-      if (userVal >= 60 && destVal >= 60) {
-        const name = field.replace('_interest', '').replace('_score', '');
-        highInterests.push(name.charAt(0).toUpperCase() + name.slice(1));
-      }
-    });
-    if (highInterests.length > 0) {
-      reasons.push(`Excellent match for your interest in ${highInterests.join(', ').toLowerCase()}`);
-    }
-  } else if (scores.interestScore > 40) {
-    const matchInterests = [];
-    PREFERENCE_SCORE_FIELDS.forEach((field, idx) => {
-      const userVal = userPrefs[field] || 0;
-      const destVal = destination[DESTINATION_SCORE_FIELDS[idx]] || 0;
-      if (userVal >= 40 && destVal >= 40) {
-        const name = field.replace('_interest', '');
-        matchInterests.push(name.charAt(0).toUpperCase() + name.slice(1));
-      }
-    });
-    if (matchInterests.length > 0) {
-      reasons.push(`Good match for your interest in ${matchInterests.join(', ').toLowerCase()}`);
-    }
+  const wantedDests = parseJsonArray(userPrefs.preferred_destinations).filter(x => x !== 'Other');
+  if (wantedDests.length && scores.destinationPrefScore >= 100) {
+    reasons.push(`Matches your preferred destination area (${wantedDests.join(', ')})`);
   }
-
-  if (scores.budgetScore >= 80) {
+  const wantedTypes = parseJsonArray(userPrefs.preferred_travel_types);
+  if (wantedTypes.length && (scores.interestScore > 55 || scores.categoryScore >= 80)) {
+    reasons.push(`Fits your travel interests (${wantedTypes.slice(0, 3).join(', ')})`);
+  }
+  const wantedActs = parseJsonArray(userPrefs.preferred_activities);
+  if (wantedActs.length && scores.interestScore > 55) {
+    reasons.push(`Supports activities you prefer (${wantedActs.slice(0, 3).join(', ')})`);
+  }
+  if (userPrefs.budget_preference && scores.budgetScore >= 70) {
+    reasons.push(`Works with your ${userPrefs.budget_preference} budget preference`);
+  } else if (scores.budgetScore >= 80) {
     reasons.push('Estimated budget fits well within your range');
   } else if (scores.budgetScore >= 50) {
     reasons.push('Estimated budget is close to your range');
-  } else if (destination.estimated_budget && userPrefs.budget_max && destination.estimated_budget > userPrefs.budget_max) {
-    reasons.push(`Note: Estimated budget (₹${destination.estimated_budget.toLocaleString()}) exceeds your maximum (₹${userPrefs.budget_max.toLocaleString()})`);
   }
-
-  if (scores.durationScore >= 80) {
-    reasons.push('Recommended duration matches your available time');
-  } else if (scores.durationScore >= 50) {
-    reasons.push('Duration is reasonably close to your preference');
+  if (userPrefs.travel_style && scores.styleScore >= 80) {
+    reasons.push(`Good fit for ${userPrefs.travel_style} travel`);
   }
-
-  if (scores.categoryScore >= 80) {
-    reasons.push(`${destination.category} destination aligns with your travel style`);
-  }
-
-  if (reasons.length === 0) {
-    reasons.push('This destination matches some of your preferences');
-  }
-
+  if (scores.durationScore >= 80) reasons.push('Recommended duration matches your available time');
+  if (reasons.length === 0) reasons.push('This destination matches some of your preferences');
   return reasons.join('. ') + '.';
 }
 
@@ -188,7 +161,10 @@ async function getUserPreferences(userId) {
     food_interest: parseInt(p.food_interest),
     photography_interest: parseInt(p.photography_interest),
     shopping_interest: parseInt(p.shopping_interest),
-    preferred_duration: parseInt(p.preferred_duration)
+    preferred_duration: p.preferred_duration != null ? parseInt(p.preferred_duration) : null,
+    preferred_travel_types: parseJsonArray(p.preferred_travel_types),
+    preferred_destinations: parseJsonArray(p.preferred_destinations),
+    preferred_activities: parseJsonArray(p.preferred_activities)
   };
 }
 
@@ -216,12 +192,57 @@ async function getActiveDestinations() {
   }));
 }
 
+function parseJsonArray(val) {
+  if (val == null || val === '') return [];
+  if (Array.isArray(val)) return val;
+  try { const p = JSON.parse(val); return Array.isArray(p) ? p : []; } catch { return []; }
+}
+
+function interestVectorFromProfile(prefs) {
+  const types = new Set(parseJsonArray(prefs.preferred_travel_types).map(s => String(s).toLowerCase()));
+  const acts = new Set(parseJsonArray(prefs.preferred_activities).map(s => String(s).toLowerCase()));
+  const base = PREFERENCE_SCORE_FIELDS.map(field => prefs[field] || 0);
+  const boost = (i, cond) => { if (cond) base[i] = Math.max(base[i], 80); };
+  boost(0, types.has('nature') || types.has('hill stations') || acts.has('trekking') || acts.has('camping')); // nature
+  boost(1, types.has('adventure') || acts.has('trekking') || acts.has('camping') || acts.has('wildlife safari')); // adventure
+  boost(2, types.has('beach') || acts.has('boating')); // beach
+  boost(3, types.has('historical places') || types.has('religious tourism') || acts.has('sightseeing')); // history
+  boost(4, types.has('cultural tourism') || types.has('religious tourism') || acts.has('food exploration')); // culture
+  boost(5, acts.has('food exploration')); // food
+  boost(6, acts.has('photography')); // photography
+  boost(7, acts.has('shopping')); // shopping
+  return base;
+}
+
+function calculateDestinationPreferenceMatch(prefs, dest) {
+  const wanted = parseJsonArray(prefs.preferred_destinations);
+  if (!wanted.length) return 50;
+  const hay = `${dest.name || ''} ${dest.location || ''} ${dest.category || ''}`.toLowerCase();
+  for (const w of wanted) {
+    if (w === 'Other') continue;
+    if (hay.includes(w.toLowerCase())) return 100;
+  }
+  if (wanted.includes('Other')) return 45;
+  return 25;
+}
+
+function calculateStyleMatch(prefs, dest) {
+  const style = (prefs.travel_style || '').toLowerCase();
+  if (!style) return 50;
+  const cat = (dest.category || '').toLowerCase();
+  if (style === 'family' && (cat.includes('beach') || cat.includes('heritage') || cat.includes('hill'))) return 85;
+  if ((style === 'couple' || style === 'honeymoon') && (cat.includes('beach') || cat.includes('hill') || cat.includes('backwater'))) return 85;
+  if ((style === 'friends' || style === 'group') && (cat.includes('adventure') || cat.includes('beach'))) return 80;
+  if (style === 'solo' && (cat.includes('adventure') || cat.includes('heritage') || cat.includes('spiritual'))) return 80;
+  return 50;
+}
+
 function calculateRecommendations(userPrefs, destinations) {
   if (!userPrefs || destinations.length === 0) {
     return [];
   }
 
-  const userVector = PREFERENCE_SCORE_FIELDS.map(field => userPrefs[field] || 0);
+  const userVector = interestVectorFromProfile(userPrefs);
   const userHasAnyInterest = userVector.some(v => v > 0);
 
   return destinations.map(dest => {
@@ -237,19 +258,25 @@ function calculateRecommendations(userPrefs, destinations) {
     const budgetScore = calculateBudgetMatch(userPrefs.budget_min, userPrefs.budget_max, dest.estimated_budget);
     const durationScore = calculateDurationMatch(userPrefs.preferred_duration, dest.recommended_duration);
     const categoryScore = calculateCategoryMatch(userPrefs.travel_type, dest.category);
+    const destinationPrefScore = calculateDestinationPreferenceMatch(userPrefs, dest);
+    const styleScore = calculateStyleMatch(userPrefs, dest);
 
     const weights = {
-      interest: 0.50,
+      interest: 0.35,
       budget: 0.20,
-      duration: 0.15,
-      category: 0.15
+      duration: 0.10,
+      category: 0.10,
+      destinationPref: 0.15,
+      style: 0.10
     };
 
     const matchScore = Math.round(
       interestScore * weights.interest +
       budgetScore * weights.budget +
       durationScore * weights.duration +
-      categoryScore * weights.category
+      categoryScore * weights.category +
+      destinationPrefScore * weights.destinationPref +
+      styleScore * weights.style
     );
 
     const clampedScore = Math.min(100, Math.max(0, matchScore));
@@ -258,7 +285,9 @@ function calculateRecommendations(userPrefs, destinations) {
       interestScore: Math.round(interestScore),
       budgetScore: Math.round(budgetScore),
       durationScore: Math.round(durationScore),
-      categoryScore: Math.round(categoryScore)
+      categoryScore: Math.round(categoryScore),
+      destinationPrefScore: Math.round(destinationPrefScore),
+      styleScore: Math.round(styleScore)
     };
 
     const reason = generateReason(userPrefs, dest, scores);
